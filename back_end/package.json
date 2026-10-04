@@ -1,0 +1,15 @@
+{
+  "name": "angular-ecommerce-back-end",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimalist back-end for the Angular e-commerce front-end",
+  "engines": {
+    "node": ">=22.11.1"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/db/seed.js"
+  }
+}
