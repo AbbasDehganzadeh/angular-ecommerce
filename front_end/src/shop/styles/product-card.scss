@@ -1,0 +1,18 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.product-card {
+  background: map-get($colors, white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  @include card-shadow;
+
+  padding: map-get($spacing, sm);
+
+  @include responsive(tablet) {
+    padding: map-get($spacing, md);
+  }
+}

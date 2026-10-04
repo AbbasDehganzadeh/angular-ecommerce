@@ -1,0 +1,108 @@
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+:root {
+  /* Colors */
+  --color-primary: #3498db;
+  --color-primary-dark: #2980b9;
+  --color-primary-light: #5dade2;
+  --color-white: #ffffff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-error: #ef4444;
+  --color-error-bg: #fee2e2;
+
+  /* Typography */
+  --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  /* Content Width */
+  --content-width-xl: 1280px;
+
+  /* Hero Specific */
+  --hero-bg-image: url('https://img.freepik.com/free-photo/natural-products-scenery-wood-forest-form-sun_1417-1031.jpg?size=626&ext=jpg&ga=GA1.1.187528884.1728510759&semt=ais_hybrid" class="mountain-lines');
+  --hero-text-color: var(--color-white);
+}
+
+.not-anchor,
+.not-anchor:hover,
+.not-anchor:visited,
+.not-anchor:focus,
+.not-anchor:active {
+  text-decoration: inherit;
+  color: inherit;
+  outline: 0;
+}
+
+/* Focus styles for better accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Improved form field styles */
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-wrapper {
+  margin: 0;
+}
+
+/* Error styles */
+.mat-error {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Button styles */
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Accessibility improvements */
+[role='button'],
+button {
+  cursor: pointer;
+}
+
+[aria-disabled='true'],
+[disabled] {
+  cursor: not-allowed;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

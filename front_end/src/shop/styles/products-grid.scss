@@ -1,0 +1,16 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.products-grid {
+  display: grid;
+  gap: map-get($spacing, md);
+  grid-template-columns: 1fr;
+  padding: map-get($spacing, sm);
+
+  @include responsive(tablet) {
+    gap: map-get($spacing, lg);
+  }
+
+  @include responsive(desktop) {
+  }
+}

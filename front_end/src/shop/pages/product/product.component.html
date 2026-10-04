@@ -1,0 +1,119 @@
+<div class="product-page">
+  <!-- Hero Section -->
+  <section class="product-hero">
+    <div class="product-container">
+      <div class="product-grid">
+        <!-- Image Gallery -->
+        <div class="product-gallery">
+          <div class="main-image">
+            <img [src]="item.uri" [alt]="item.title" class="featured-image" />
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+          <div class="category-badge">{{ item.category }}</div>
+          <h1 class="product-title">{{ item.title }}</h1>
+
+          <div class="rating-container">
+            <div class="stars">
+              @for (star of [1,2,3,4,5]; track star) {
+              <i
+                class="fas fa-star"
+                [class.filled]="star <= item.rating.rate"
+              ></i>
+              }
+            </div>
+            <span class="rating-count">({{ item.rating.count }} reviews)</span>
+          </div>
+
+          <p class="product-description">{{ item.description }}</p>
+
+          <div class="price-container">
+            <span class="price">${{ item.price }}</span>
+            @if (item.price > 100) {
+            <span class="shipping-badge">Free Shipping</span>
+            }
+          </div>
+
+          <div class="action-container">
+            @if (isInCart$ | async) {
+            <a [routerLink]="['/cart']" class="btn btn-secondary">
+              <i class="fas fa-shopping-cart"></i>
+              View in Cart
+            </a>
+            } @else {
+            <button (click)="addItem()" class="btn btn-primary">
+              <i class="fas fa-cart-plus"></i>
+              Add to Cart
+            </button>
+            }
+            <button class="btn btn-outline" (click)="toggleWishlist()">
+              <i
+                class="fas"
+                [class.fa-heart]="isWishlisted"
+                [class.fa-heart-o]="!isWishlisted"
+              ></i>
+              {{ isWishlisted ? 'Wishlisted' : 'Add to Wishlist' }}
+            </button>
+          </div>
+
+          <div class="features">
+            <div class="feature-item">
+              <i class="fas fa-truck"></i>
+              <span>Fast Delivery</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-undo"></i>
+              <span>30 Days Return</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-shield-alt"></i>
+              <span>Secure Payment</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recently Viewed Section -->
+  @if (recentProducts.length > 0) {
+  <section class="recent-products">
+    <div class="section-container">
+      <h2 class="section-title">Recently Viewed</h2>
+      <div class="products-grid">
+        @for (product of recentProducts; track product.id) {
+        <app-card-compact
+          [id]="product.id"
+          [name]="product.title"
+          [category]="product.category"
+          [pictureUri]="product.uri"
+          [price]="product.price"
+        />
+        }
+      </div>
+    </div>
+  </section>
+  }
+
+  <!-- Similar Products Section -->
+  @if (simItems.length > 0) {
+  <section class="similar-products">
+    <div class="section-container">
+      <h2 class="section-title">Similar Products</h2>
+      <div class="products-grid">
+        @for (product of simItems; track product.id) {
+        <app-card-compact
+          [id]="product.id"
+          [name]="product.title"
+          [category]="product.category"
+          [pictureUri]="product.uri"
+          [price]="product.price"
+        />
+        }
+      </div>
+    </div>
+  </section>
+  }
+</div>

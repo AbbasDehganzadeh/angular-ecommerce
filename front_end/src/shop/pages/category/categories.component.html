@@ -1,0 +1,14 @@
+<span>List Categories</span>
+
+  <h2>Categories</h2>
+
+  <mat-grid-list cols=1 rowHeight="1:5">
+    @for (category of categories; track category; let idx = $index) {
+  <app-card-inline [title]='category'
+  ></app-card-inline>
+    
+      <mat-divider inset vertical></mat-divider>
+    }
+</mat-grid-list>
+<mat-divider></mat-divider>
+
