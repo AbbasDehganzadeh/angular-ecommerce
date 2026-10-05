@@ -3,9 +3,10 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT NOT NULL UNIQUE COLLATE NOCASE,
   name TEXT,
   email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-  email1 TEXT,
   password TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  last_loggedin TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -17,7 +18,8 @@ CREATE TABLE IF NOT EXISTS products (
   uri TEXT NOT NULL DEFAULT '',
   rating_rate REAL NOT NULL DEFAULT 0,
   rating_count INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON products (category);
@@ -37,7 +39,8 @@ CREATE TABLE IF NOT EXISTS orders (
   payment_method TEXT NOT NULL,
   payment_reference TEXT,
   payment_reason TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders (user_id);
