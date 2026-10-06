@@ -18,7 +18,14 @@ export class LogOutComponent {
   ) {}
 
   logout() {
-    this.authService.logOut();
-    this.router.navigateByUrl("/");
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigateByUrl("/");
+      },
+      error: (err) => {
+        console.error("Logout error:", err);
+        this.router.navigateByUrl("/");
+      },
+    });
   }
 }

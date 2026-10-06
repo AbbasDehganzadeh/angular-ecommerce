@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
+import { CommonModule } from "@angular/common";
 import { RouterLink, RouterLinkActive, RouterModule } from "@angular/router";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatMenu, MatMenuTrigger } from "@angular/material/menu";
@@ -20,7 +21,7 @@ import { User } from "../../models/user.model";
         src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg=="
       />
       @if (isAuthenticated()) {
-        <span>Welcome </span> {{ user.username }}
+        <span>Welcome </span> {{ currentUser?.username }}
       }
       <div class="spacer"></div>
       <mat-toolbar-row>
@@ -147,6 +148,7 @@ import { User } from "../../models/user.model";
     `,
   ],
   imports: [
+    CommonModule,
     RouterModule,
     RouterLink,
     RouterLinkActive,
@@ -156,14 +158,15 @@ import { User } from "../../models/user.model";
     MatToolbarModule,
   ],
 })
-export class HeaderComponent implements OnInit, OnDestroy {
+export class HeaderComponent implements OnDestroy {
   itemCountSubscribe: Subscription;
-  user!: User;
+  currentUser: User | null = null;
   itemCount = "0";
   constructor(
     private cartService: CartService,
     private userService: UserService,
   ) {
+    this.currentUser = this.userService.getCurrentUser();
     this.itemCountSubscribe = this.cartService
       .getItemCount()
       .subscribe((data) => {
@@ -172,10 +175,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
   isAuthenticated() {
     return this.userService.isAuthenticated();
-  }
-
-  ngOnInit() {
-    this.user = this.userService.getUserDetails() as User;
   }
 
   ngOnDestroy() {

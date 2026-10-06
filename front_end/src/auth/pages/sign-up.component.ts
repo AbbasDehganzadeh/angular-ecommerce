@@ -178,17 +178,20 @@ export class SignUpComponent {
       this.isLoading = true;
       this.error = "";
 
-      try {
-        this.authService.signUp(this.signupForm.value);
-        this.router.navigateByUrl("/shop/products");
-      } catch (err) {
-        this.error =
-          err instanceof Error
-            ? err.message
-            : "An error occurred during signup";
-      } finally {
-        this.isLoading = false;
-      }
+      this.authService.signup(this.signupForm.value).subscribe({
+        next: () => {
+          this.router.navigateByUrl("/user/profile");
+        },
+        error: (err) => {
+          this.error =
+            err instanceof Error
+              ? err.message
+              : "An error occurred during signup";
+        },
+        complete: () => {
+          this.isLoading = false;
+        },
+      });
     }
   }
 }

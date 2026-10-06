@@ -11,6 +11,7 @@ import {
   withInterceptors,
 } from "@angular/common/http";
 import { provideAnimations } from "@angular/platform-browser/animations";
+import { JwtInterceptor } from "./common/interceptors/auth.interceptor";
 import { routes } from "./app.routes";
 
 export const appConfig: ApplicationConfig = {
@@ -20,7 +21,7 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding(),
       withPreloading(PreloadAllModules),
     ),
-    provideHttpClient(withFetch(), withInterceptors([])),
+    provideHttpClient(withFetch(), withInterceptors([JwtInterceptor])),
     provideAnimations(),
   ],
 };

@@ -1,4 +1,11 @@
 import { Injectable } from "@angular/core";
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from "@angular/common/http";
+import { Observable, throwError } from "rxjs";
+import { catchError, tap } from "rxjs/operators";
 import { User } from "../../models/user.model";
 import {
   CookieService,
@@ -8,76 +15,62 @@ import {
 
 @Injectable({ providedIn: "root" })
 export class UserService {
-  users: User[] = [{ username: "john", email: "a@b.c", password: "1234" }];
+  private readonly users: User[] = [
+    { username: "john", email: "a@b.c", password: "1234" },
+  ];
+  private readonly API_URL = "http://localhost:3030/api/users";
 
-  constructor(private cookieService: CookieService) {}
+  constructor(
+    private cookieService: CookieService,
+    private http: HttpClient,
+  ) {}
 
-  getUserName(value: string) {
-    const user = this.users.find(
-      (user) =>
-        user.username === value ||
-        user.email === value ||
-        user.email1 === value,
-    );
-    return user?.username || "";
-  }
-
-  getUser(name: string) {
-    return this.users.find((user) => user.username === name && name !== "");
-  }
-
-  getUserByName(name: string) {
-    return this.users.find((user) => user.username == name);
-  }
-
-  getUserByEmail(email: string) {
-    return this.users.find(
-      (user) => user.email == email || user.email1 == email,
-    );
-  }
-
-  getUserDetails() {
-    const username = this.cookieService.get(USER_COOKIE_KEY);
-    return this.getUser(username);
-  }
-
-  async createUser(user: User) {
-    const existingUser = this.getUser(user.username);
-    const existingEmail = this.getUserByEmail(user.email);
-
-    if (existingUser || existingEmail) {
-      throw new Error("User with this username or email already exists!");
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = "An unknown error occurred";
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Client-side error: ${error.error.message}`;
+    } else if (error.error?.message) {
+      errorMessage = error.error.message;
+    } else {
+      errorMessage = `Server-side error: ${error.status} ${error.message}`;
     }
-
-    const hashedPassword = await this.hashPassword(user.password);
-    this.users.push({ ...user, password: hashedPassword });
+    console.error("API Error:", errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 
-  isAuthenticated() {
-    const username = this.cookieService.get(USER_COOKIE_KEY);
-    return !!username;
+  getCurrentUser(): User | null {
+    const userData = this.cookieService.get(USER_COOKIE_KEY);
+    if (userData) {
+      try {
+        return JSON.parse(userData);
+      } catch {
+        return null;
+      }
+    }
+    return null;
   }
 
-  async validatePassword(
-    hashedPassword: string,
-    plainPassword: string,
-  ): Promise<boolean> {
-    // try {
-    //   return await argon2.verify(hashedPassword, plainPassword);
-    // } catch (error) {
-    //   console.error('Password validation error:', error);
-    //   return false;
-    // }
-    return hashedPassword === plainPassword;
+  getUserToken(): string {
+    const userData = this.cookieService.get(USER_COOKIE_KEY);
+    if (userData) {
+      try {
+        return JSON.parse(userData).token;
+      } catch {
+        return "";
+      }
+    }
+    return "";
   }
 
-  async hashPassword(password: string): Promise<string> {
-    // try {
-    //   return await argon2.hash(password);
-    // } catch (error) {
-    //   console.error('Password hashing error:', error);
-    //   throw new Error('Failed to hash password');
-    // }
-    return password;
+  getUserDetail(): Observable<{ user: User }> {
+    const token = this.getUserToken();
+    return this.http.get<{ user: User }>(`${this.API_URL}/me`).pipe(
+      tap((response) => console.log("fetching profile...", response)),
+      catchError((error) => this.handleError(error)),
+    );
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getCurrentUser();
   }
 }

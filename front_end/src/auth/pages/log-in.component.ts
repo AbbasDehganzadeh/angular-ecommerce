@@ -115,21 +115,26 @@ export class LogInComponent {
     this.hidePassword = !this.hidePassword;
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.error = "";
 
-      try {
-        const { identifier, password } = this.loginForm.value;
-        this.authService.logIn(identifier, password);
-        this.router.navigateByUrl("/shop/products");
-      } catch (err) {
-        this.error =
-          err instanceof Error ? err.message : "An error occurred during login";
-      } finally {
-        this.isLoading = false;
-      }
+      const { identifier, password } = this.loginForm.value;
+      this.authService.login(identifier, password).subscribe({
+        next: () => {
+          this.router.navigateByUrl("/user/profile");
+        },
+        error: (err) => {
+          this.error =
+            err instanceof Error
+              ? err.message
+              : "An error occurred during login";
+        },
+        complete: () => {
+          this.isLoading = false;
+        },
+      });
     }
   }
 }
