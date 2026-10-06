@@ -3,40 +3,40 @@ import {
   findById,
   toPublicUser,
   updateUser,
-} from '../models/user.model.js';
-import { requireAuth } from '../middleware/auth.js';
-import { hashPassword, verifyPassword } from '../utils/password.js';
-import { unauthorized } from '../utils/http.js';
+} from "../models/user.model.js";
+import { requireAuth } from "../middleware/auth.js";
+import { hashPassword, verifyPassword } from "../utils/password.js";
+import { unauthorized } from "../utils/http.js";
 import {
   optionalString,
   requireEmail,
   requireString,
-} from '../utils/validate.js';
+} from "../utils/validate.js";
 
 export function userRoutes(router, db) {
-  router.get('/api/users/me', (ctx) => ({ user: requireAuth(ctx) }));
+  router.get("/api/users/me", (ctx) => ({ user: requireAuth(ctx) }));
 
-  router.patch('/api/users/me', (ctx) => {
+  router.patch("/api/users/me", (ctx) => {
     const user = requireAuth(ctx);
     const patch = {};
 
-    const name = optionalString(ctx.body.name, 'name', { max: 64 });
+    const name = optionalString(ctx.body.name, "name", { max: 64 });
     if (name !== undefined) patch.name = name;
 
-    if (ctx.body.email !== undefined) patch.email = requireEmail(ctx.body.email);
-    if (ctx.body.email1 !== undefined) {
-      patch.email1 = ctx.body.email1
-        ? requireEmail(ctx.body.email1, 'email1')
-        : null;
-    }
-
+    if (ctx.body.email !== undefined)
+      patch.email = requireEmail(ctx.body.email);
     if (ctx.body.password !== undefined) {
       const current = findById(db, user.id);
-      if (!verifyPassword(String(ctx.body.currentPassword ?? ''), current.password)) {
-        throw unauthorized('Current password is incorrect');
+      if (
+        !verifyPassword(
+          String(ctx.body.currentPassword ?? ""),
+          current.password,
+        )
+      ) {
+        throw unauthorized("Current password is incorrect");
       }
       patch.password = hashPassword(
-        requireString(ctx.body.password, 'password', { min: 5, max: 128 })
+        requireString(ctx.body.password, "password", { min: 5, max: 128 }),
       );
     }
 
@@ -44,15 +44,15 @@ export function userRoutes(router, db) {
     return { user: toPublicUser(row) };
   });
 
-  router.delete('/api/users/me', (ctx) => {
+  router.delete("/api/users/me", (ctx) => {
     const user = requireAuth(ctx);
     const row = findById(db, user.id);
-    const password = requireString(ctx.body?.password, 'password', {
+    const password = requireString(ctx.body?.password, "password", {
       max: 128,
     });
 
     if (!verifyPassword(password, row.password)) {
-      throw unauthorized('Password is incorrect');
+      throw unauthorized("Password is incorrect");
     }
 
     deleteUser(db, user.id);

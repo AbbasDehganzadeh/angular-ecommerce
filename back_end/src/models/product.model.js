@@ -1,44 +1,47 @@
-import { notFound } from '../utils/http.js';
+import { notFound } from "../utils/http.js";
 
 const COLUMNS = `id, title, description, price, category, uri,
   rating_rate, rating_count,
   rating_rate AS "rating.rate", rating_count AS "rating.count"`;
 
 const SORT_CLAUSES = {
-  alphabet: 'title COLLATE NOCASE ASC',
-  '~alphabet': 'title COLLATE NOCASE DESC',
-  price: 'price ASC',
-  '~price': 'price DESC',
-  rating: 'rating_rate DESC',
-  '~rating': 'rating_rate ASC',
-  count: 'rating_count DESC',
-  '~count': 'rating_count ASC',
+  alphabet: "title COLLATE NOCASE ASC",
+  "~alphabet": "title COLLATE NOCASE DESC",
+  price: "price ASC",
+  "~price": "price DESC",
+  rating: "rating_rate DESC",
+  "~rating": "rating_rate ASC",
+  count: "rating_count DESC",
+  "~count": "rating_count ASC",
 };
 
 export const SORT_KEYS = Object.keys(SORT_CLAUSES);
 
-export function listProducts(db, { category, search, min, max, sort, limit, offset } = {}) {
+export function listProducts(
+  db,
+  { category, search, min, max, sort, limit, offset } = {},
+) {
   const conditions = [];
   const values = [];
 
   if (category) {
-    conditions.push('category = ? COLLATE NOCASE');
+    conditions.push("category = ? COLLATE NOCASE");
     values.push(category);
   }
   if (search) {
-    conditions.push('(title LIKE ? OR description LIKE ?)');
+    conditions.push("(title LIKE ? OR description LIKE ?)");
     values.push(`%${search}%`, `%${search}%`);
   }
   if (min !== undefined) {
-    conditions.push('price >= ?');
+    conditions.push("price >= ?");
     values.push(min);
   }
   if (max !== undefined) {
-    conditions.push('price <= ?');
+    conditions.push("price <= ?");
     values.push(max);
   }
 
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
   const order = SORT_CLAUSES[sort] ?? SORT_CLAUSES.alphabet;
   const sql = `SELECT ${COLUMNS} FROM products ${where}
     ORDER BY ${order} LIMIT ? OFFSET ?`;
@@ -50,13 +53,15 @@ export function listProducts(db, { category, search, min, max, sort, limit, offs
 }
 
 export function findProduct(db, id) {
-  const row = db.prepare(`SELECT ${COLUMNS} FROM products WHERE id = ?`).get(id);
+  const row = db
+    .prepare(`SELECT ${COLUMNS} FROM products WHERE id = ?`)
+    .get(id);
   return row ? normalize(row) : null;
 }
 
 export function getProduct(db, id) {
   const product = findProduct(db, id);
-  if (!product) throw notFound('Product not found');
+  if (!product) throw notFound("Product not found");
   return product;
 }
 
@@ -64,7 +69,7 @@ export function listCategories(db) {
   return db
     .prepare(
       `SELECT DISTINCT category FROM products
-       ORDER BY category COLLATE NOCASE ASC`
+       ORDER BY category COLLATE NOCASE ASC`,
     )
     .all()
     .map((row) => row.category);
@@ -75,16 +80,16 @@ export function createProduct(db, product) {
     .prepare(
       `INSERT INTO products
          (title, description, price, category, uri, rating_rate, rating_count)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       product.title,
-      product.description ?? '',
+      product.description ?? "",
       product.price,
       product.category,
-      product.uri ?? '',
+      product.uri ?? "",
       product.rating?.rate ?? 0,
-      product.rating?.count ?? 0
+      product.rating?.count ?? 0,
     );
 
   return findProduct(db, Number(info.lastInsertRowid));
@@ -92,13 +97,13 @@ export function createProduct(db, product) {
 
 export function updateProduct(db, id, patch) {
   const columns = {
-    title: 'title',
-    description: 'description',
-    price: 'price',
-    category: 'category',
-    uri: 'uri',
-    rate: 'rating_rate',
-    count: 'rating_count',
+    title: "title",
+    description: "description",
+    price: "price",
+    category: "category",
+    uri: "uri",
+    rate: "rating_rate",
+    count: "rating_count",
   };
 
   const assignments = [];
@@ -120,16 +125,16 @@ export function updateProduct(db, id, patch) {
 
   values.push(id);
   const info = db
-    .prepare(`UPDATE products SET ${assignments.join(', ')} WHERE id = ?`)
+    .prepare(`UPDATE products SET ${assignments.join(", ")} WHERE id = ?`)
     .run(...values);
 
-  if (info.changes === 0) throw notFound('Product not found');
+  if (info.changes === 0) throw notFound("Product not found");
   return getProduct(db, id);
 }
 
 export function deleteProduct(db, id) {
-  const info = db.prepare('DELETE FROM products WHERE id = ?').run(id);
-  if (info.changes === 0) throw notFound('Product not found');
+  const info = db.prepare("DELETE FROM products WHERE id = ?").run(id);
+  if (info.changes === 0) throw notFound("Product not found");
 }
 
 function normalize(row) {

@@ -1,22 +1,22 @@
-import { config } from '../config.js';
-import { findById, toPublicUser } from '../models/user.model.js';
-import { signToken, verifyToken } from '../utils/token.js';
-import { unauthorized } from '../utils/http.js';
+import { config } from "../config.js";
+import { findById, toPublicUser } from "../models/user.model.js";
+import { signToken, verifyToken } from "../utils/token.js";
+import { unauthorized } from "../utils/http.js";
 
 function readToken(req) {
-  const header = req.headers.authorization ?? '';
-  if (header.toLowerCase().startsWith('bearer ')) {
+  const header = req.headers.authorization ?? "";
+  if (header.toLowerCase().startsWith("bearer ")) {
     return header.slice(7).trim();
   }
 
-  const cookies = (req.headers.cookie ?? '')
-    .split(';')
+  const cookies = (req.headers.cookie ?? "")
+    .split(";")
     .map((cookie) => cookie.trim())
     .filter(Boolean);
 
   for (const cookie of cookies) {
-    const [name, ...rest] = cookie.split('=');
-    if (name === config.cookieName) return decodeURIComponent(rest.join('='));
+    const [name, ...rest] = cookie.split("=");
+    if (name === config.cookieName) return decodeURIComponent(rest.join("="));
   }
 
   return null;
@@ -25,26 +25,26 @@ function readToken(req) {
 function appendCookie(res, value, maxAge) {
   const parts = [
     `${config.cookieName}=${value}`,
-    'Path=/',
-    'HttpOnly',
-    'SameSite=Lax',
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
     `Max-Age=${maxAge}`,
   ];
-  res.setHeader('Set-Cookie', parts.join('; '));
+  res.setHeader("Set-Cookie", parts.join("; "));
 }
 
 export function issueSession(res, user) {
   const token = signToken(
     { sub: user.id, username: user.username },
     config.tokenSecret,
-    config.tokenTtlSeconds
+    config.tokenTtlSeconds,
   );
   appendCookie(res, token, config.tokenTtlSeconds);
   return token;
 }
 
 export function clearSession(res) {
-  appendCookie(res, '', 0);
+  appendCookie(res, "", 0);
 }
 
 export function authenticate(ctx) {

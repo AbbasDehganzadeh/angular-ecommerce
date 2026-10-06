@@ -1,13 +1,13 @@
-import { transaction } from '../db/database.js';
-import { conflict, notFound } from '../utils/http.js';
+import { transaction } from "../db/database.js";
+import { conflict, notFound } from "../utils/http.js";
 
-const ORDER_STATUS = { succeeded: 'paid', declined: 'failed' };
+const ORDER_STATUS = { succeeded: "paid", declined: "failed" };
 
 const round = (value) => Math.round(value * 100) / 100;
 
 export function createOrder(db, { userId, items, couponCode, paymentMethod }) {
   const selectProduct = db.prepare(
-    'SELECT id, title, price FROM products WHERE id = ?'
+    "SELECT id, title, price FROM products WHERE id = ?",
   );
 
   const lines = items.map(({ id, quantity }) => {
@@ -22,15 +22,15 @@ export function createOrder(db, { userId, items, couponCode, paymentMethod }) {
   });
 
   const subtotal = round(
-    lines.reduce((sum, line) => sum + line.price * line.quantity, 0)
+    lines.reduce((sum, line) => sum + line.price * line.quantity, 0),
   );
 
   let percent = 0;
   if (couponCode) {
     const coupon = db
-      .prepare('SELECT percent FROM coupons WHERE code = ?')
+      .prepare("SELECT percent FROM coupons WHERE code = ?")
       .get(couponCode);
-    if (!coupon) throw notFound('Invalid discount code');
+    if (!coupon) throw notFound("Invalid discount code");
     percent = coupon.percent;
   }
 
@@ -42,14 +42,14 @@ export function createOrder(db, { userId, items, couponCode, paymentMethod }) {
       .prepare(
         `INSERT INTO orders
            (user_id, status, subtotal, discount, total, payment_method)
-         VALUES (?, 'pending', ?, ?, ?, ?)`
+         VALUES (?, 'pending', ?, ?, ?, ?)`,
       )
       .run(userId, subtotal, discount, total, paymentMethod);
 
     const orderId = Number(info.lastInsertRowid);
     const insertItem = db.prepare(
       `INSERT INTO order_items (order_id, product_id, title, price, quantity)
-       VALUES (?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?)`,
     );
 
     for (const line of lines) {
@@ -58,7 +58,7 @@ export function createOrder(db, { userId, items, couponCode, paymentMethod }) {
         line.productId,
         line.title,
         line.price,
-        line.quantity
+        line.quantity,
       );
     }
 
@@ -72,7 +72,7 @@ export function listOrders(db, userId) {
       `SELECT id, status, subtotal, discount, total, payment_method,
               payment_reference, payment_reason, created_at AS createdAt
        FROM orders WHERE user_id = ?
-       ORDER BY id DESC`
+       ORDER BY id DESC`,
     )
     .all(userId)
     .map(normalize);
@@ -83,45 +83,52 @@ export function getOrder(db, id, userId) {
     .prepare(
       `SELECT id, status, subtotal, discount, total, payment_method,
               payment_reference, payment_reason, created_at AS createdAt
-       FROM orders WHERE id = ? AND user_id = ?`
+       FROM orders WHERE id = ? AND user_id = ?`,
     )
     .get(id, userId);
 
-  if (!row) throw notFound('Order not found');
+  if (!row) throw notFound("Order not found");
 
   const items = db
     .prepare(
       `SELECT product_id AS productId, title, price, quantity
-       FROM order_items WHERE order_id = ? ORDER BY id`
+       FROM order_items WHERE order_id = ? ORDER BY id`,
     )
     .all(id);
 
   return { ...normalize(row), items };
 }
 
-export function setPaymentResult(db, id, userId, { status, reference, reason }) {
+export function setPaymentResult(
+  db,
+  id,
+  userId,
+  { status, reference, reason },
+) {
   const order = getOrder(db, id, userId);
-  if (order.status !== 'pending') {
+  if (order.status !== "pending") {
     throw conflict(`Order is already ${order.status}`);
   }
 
   db.prepare(
     `UPDATE orders
      SET status = ?, payment_reference = ?, payment_reason = ?
-     WHERE id = ? AND user_id = ?`
+     WHERE id = ? AND user_id = ?`,
   ).run(
-    ORDER_STATUS[status] ?? 'failed',
+    ORDER_STATUS[status] ?? "failed",
     reference ?? null,
     reason ?? null,
     id,
-    userId
+    userId,
   );
 
   return getOrder(db, id, userId);
 }
 
 export function findCoupon(db, code) {
-  return db.prepare('SELECT percent FROM coupons WHERE code = ?').get(code) ?? null;
+  return (
+    db.prepare("SELECT percent FROM coupons WHERE code = ?").get(code) ?? null
+  );
 }
 
 function normalize(row) {

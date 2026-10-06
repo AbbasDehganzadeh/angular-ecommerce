@@ -1,7 +1,8 @@
-import { conflict, notFound } from '../utils/http.js';
+import { conflict, notFound } from "../utils/http.js";
+import { formatDateNow } from "../utils/format.js";
 
 const COLUMNS =
-  'id, username, name, email, email1, password, created_at AS createdAt';
+  "id, username, name, email, password, created_at AS createdAt, last_loggedin AS lastLoggedin";
 
 export function toPublicUser(row) {
   return {
@@ -9,13 +10,19 @@ export function toPublicUser(row) {
     username: row.username,
     name: row.name ?? undefined,
     email: row.email,
-    email1: row.email1 ?? undefined,
     createdAt: row.createdAt,
+    lastLoggedin: row.lastLoggedin,
   };
 }
 
 export function findById(db, id) {
-  return db.prepare(`SELECT ${COLUMNS} FROM users WHERE id = ?`).get(id) ?? null;
+  return (
+    db
+      .prepare(
+        `SELECT ${COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
+      )
+      .get(id) ?? null
+  );
 }
 
 export function findByIdentifier(db, identifier) {
@@ -25,28 +32,32 @@ export function findByIdentifier(db, identifier) {
         `SELECT ${COLUMNS} FROM users
          WHERE username = ? COLLATE NOCASE
             OR email = ? COLLATE NOCASE
-            OR email1 = ? COLLATE NOCASE`
+	    AND deleted_at IS NULL`,
       )
-      .get(identifier, identifier, identifier) ?? null
+      .get(identifier, identifier) ?? null
   );
 }
 
-export function createUser(db, { username, name, email, email1, password }) {
+export function createUser(db, { username, name, email, password }) {
   if (findByIdentifier(db, username) || findByIdentifier(db, email)) {
-    throw conflict('User with this username or email already exists!');
-  }
-  if (email1 && findByIdentifier(db, email1)) {
-    throw conflict('User with this email already exists!');
+    throw conflict("User with this username or email already exists!");
   }
 
   const info = db
     .prepare(
-      `INSERT INTO users (username, name, email, email1, password)
-       VALUES (?, ?, ?, ?, ?)`
+      `INSERT INTO users (username, name, email, password)
+       VALUES (?, ?, ?, ?)`,
     )
-    .run(username, name ?? null, email, email1 ?? null, password);
+    .run(username, name ?? null, email ?? null, password);
 
   return findById(db, Number(info.lastInsertRowid));
+}
+
+export function updateLogin(db, id) {
+  db.prepare(
+    "UPDATE users SET last_loggedin = ? WHERE id = ? AND deleted_at IS NULL",
+  ).run(formatDateNow(), id);
+  return findById(db, id);
 }
 
 export function updateUser(db, id, patch) {
@@ -61,19 +72,23 @@ export function updateUser(db, id, patch) {
 
   if (assignments.length === 0) {
     const current = findById(db, id);
-    if (!current) throw notFound('User not found');
+    if (!current) throw notFound("User not found");
     return current;
   }
 
   values.push(id);
-  db.prepare(`UPDATE users SET ${assignments.join(', ')} WHERE id = ?`).run(
-    ...values
+  db.prepare(`UPDATE users SET ${assignments.join(", ")} WHERE id = ?`).run(
+    ...values,
   );
 
   return findById(db, id);
 }
 
 export function deleteUser(db, id) {
-  const info = db.prepare('DELETE FROM users WHERE id = ?').run(id);
-  if (info.changes === 0) throw notFound('User not found');
+  const user = findById(db, id);
+  if (user === null) throw notFound("User not found");
+  db.prepare("UPDATE users SET deleted_at = ? WHERE id = ?").run(
+    formatDateNow(),
+    id,
+  );
 }

@@ -1,4 +1,4 @@
-const compile = (path) => path.split('/').filter(Boolean);
+const compile = (path) => path.split("/").filter(Boolean);
 
 export function createRouter() {
   const routes = [];
@@ -9,16 +9,16 @@ export function createRouter() {
       return router;
     },
     get(path, ...handlers) {
-      return router.use('GET', path, ...handlers);
+      return router.use("GET", path, ...handlers);
     },
     post(path, ...handlers) {
-      return router.use('POST', path, ...handlers);
+      return router.use("POST", path, ...handlers);
     },
     patch(path, ...handlers) {
-      return router.use('PATCH', path, ...handlers);
+      return router.use("PATCH", path, ...handlers);
     },
     delete(path, ...handlers) {
-      return router.use('DELETE', path, ...handlers);
+      return router.use("DELETE", path, ...handlers);
     },
     match(method, pathname) {
       const parts = compile(pathname);
@@ -33,7 +33,7 @@ export function createRouter() {
 
         for (let index = 0; index < route.parts.length; index += 1) {
           const part = route.parts[index];
-          if (part.startsWith(':')) {
+          if (part.startsWith(":")) {
             params[part.slice(1)] = decodeURIComponent(parts[index]);
           } else if (part !== parts[index]) {
             matched = false;
