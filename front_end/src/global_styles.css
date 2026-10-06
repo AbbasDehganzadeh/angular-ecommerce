@@ -1,4 +1,4 @@
-@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 
 :root {
   /* Colors */
@@ -20,8 +20,8 @@
   --color-error-bg: #fee2e2;
 
   /* Typography */
-  --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -84,12 +84,12 @@
 }
 
 /* Accessibility improvements */
-[role='button'],
+[role="button"],
 button {
   cursor: pointer;
 }
 
-[aria-disabled='true'],
+[aria-disabled="true"],
 [disabled] {
   cursor: not-allowed;
 }

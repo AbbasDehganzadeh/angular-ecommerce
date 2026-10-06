@@ -4,37 +4,36 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Product } from '../../../models/product.model';
-import { CardCompactComponent } from '../card-compact.component';
+} from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Product } from "../../../models/product.model";
+import { CardCompactComponent } from "../card-compact.component";
 
 @Component({
-  selector: 'app-product-section',
+  selector: "app-product-section",
   template: `
     <section class="product-section">
       <div class="section-header">
         <h2 class="section-title">{{ title }}</h2>
         <div class="section-controls">
-          <button 
-            class="scroll-button prev" 
+          <button
+            class="scroll-button prev"
             [class.hidden]="isScrollStart"
-            (click)="scrollLeft()">
+            (click)="scrollLeft()"
+          >
             <i class="fas fa-chevron-left"></i>
           </button>
-          <button 
-            class="scroll-button next" 
+          <button
+            class="scroll-button next"
             [class.hidden]="isScrollEnd"
-            (click)="scrollRight()">
+            (click)="scrollRight()"
+          >
             <i class="fas fa-chevron-right"></i>
           </button>
         </div>
       </div>
-      
-      <div 
-        #scrollContainer
-        class="products-container"
-        (scroll)="onScroll()">
+
+      <div #scrollContainer class="products-container" (scroll)="onScroll()">
         @for (product of products; track product.id) {
           <div class="product-card">
             <app-card-compact
@@ -51,135 +50,135 @@ import { CardCompactComponent } from '../card-compact.component';
   `,
   styles: [
     `
-    .product-section {
-      position: relative;
-      width: 100%;
-      margin: var(--spacing-lg) 0;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 var(--spacing-md);
-      margin-bottom: var(--spacing-md);
-    }
-
-    .section-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--color-gray-900);
-      margin: 0;
-    }
-
-    .section-controls {
-      display: flex;
-      gap: var(--spacing-sm);
-    }
-
-    .scroll-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border: none;
-      border-radius: 50%;
-      background: var(--color-white);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      
-      &:hover {
-        background: var(--color-gray-100);
-        transform: translateY(-1px);
+      .product-section {
+        position: relative;
+        width: 100%;
+        margin: var(--spacing-lg) 0;
       }
 
-      &.hidden {
-        opacity: 0;
-        pointer-events: none;
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 var(--spacing-md);
+        margin-bottom: var(--spacing-md);
       }
 
-      i {
-        font-size: 1rem;
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
         color: var(--color-gray-900);
+        margin: 0;
       }
-    }
 
-    .products-container {
-      display: flex;
-      gap: var(--spacing-md);
-      overflow-x: auto;
-      overflow-y: hidden;
-      flex-wrap: nowrap;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-      padding: var(--spacing-md);
-      scroll-padding: var(--spacing-md);
-      will-change: transform;
-      
-      /* Hide scrollbar but keep functionality */
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-      &::-webkit-scrollbar {
-        display: none;
+      .section-controls {
+        display: flex;
+        gap: var(--spacing-sm);
       }
-    }
 
-    .product-card {
-      flex: 0 0 auto;
-      transform: translateZ(0);
-      
-      /* Mobile */
-      @media (min-width: 320px) {
-        width: calc(40vw - var(--spacing-md));
-        min-width: 200px;
-      }
-      
-      /* Tablet */
-      @media (min-width: 768px) {
-        width: calc(28.57vw - var(--spacing-lg));
-        min-width: 250px;
-      }
-      
-      /* Desktop */
-      @media (min-width: 1024px) {
-        width: calc(22.22vw - var(--spacing-xl));
-        min-width: 300px;
-      }
-    }
+      .scroll-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: var(--color-white);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.2s ease;
 
-    /* Container heights */
-    @media (min-width: 320px) {
+        &:hover {
+          background: var(--color-gray-100);
+          transform: translateY(-1px);
+        }
+
+        &.hidden {
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        i {
+          font-size: 1rem;
+          color: var(--color-gray-900);
+        }
+      }
+
       .products-container {
-        height: 300px;
+        display: flex;
         gap: var(--spacing-md);
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex-wrap: nowrap;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        padding: var(--spacing-md);
+        scroll-padding: var(--spacing-md);
+        will-change: transform;
+
+        /* Hide scrollbar but keep functionality */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        &::-webkit-scrollbar {
+          display: none;
+        }
       }
-    }
-    
-    @media (min-width: 768px) {
-      .products-container {
-        height: 350px;
-        gap: var(--spacing-lg);
+
+      .product-card {
+        flex: 0 0 auto;
+        transform: translateZ(0);
+
+        /* Mobile */
+        @media (min-width: 320px) {
+          width: calc(40vw - var(--spacing-md));
+          min-width: 200px;
+        }
+
+        /* Tablet */
+        @media (min-width: 768px) {
+          width: calc(28.57vw - var(--spacing-lg));
+          min-width: 250px;
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+          width: calc(22.22vw - var(--spacing-xl));
+          min-width: 300px;
+        }
       }
-    }
-    
-    @media (min-width: 1024px) {
-      .products-container {
-        height: 400px;
-        gap: var(--spacing-xl);
+
+      /* Container heights */
+      @media (min-width: 320px) {
+        .products-container {
+          height: 300px;
+          gap: var(--spacing-md);
+        }
       }
-    }
-  `,
+
+      @media (min-width: 768px) {
+        .products-container {
+          height: 350px;
+          gap: var(--spacing-lg);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .products-container {
+          height: 400px;
+          gap: var(--spacing-xl);
+        }
+      }
+    `,
   ],
   standalone: true,
   imports: [CommonModule, CardCompactComponent],
 })
 export class ProductSectionComponent implements AfterViewInit {
-  @Input() title = '';
+  @Input() title = "";
   @Input() products: Product[] = [];
 
-  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
+  @ViewChild("scrollContainer") scrollContainer!: ElementRef;
 
   isScrollStart = true;
   isScrollEnd = false;
@@ -201,11 +200,11 @@ export class ProductSectionComponent implements AfterViewInit {
 
   scrollLeft() {
     const element = this.scrollContainer.nativeElement;
-    element.scrollBy({ left: -element.clientWidth, behavior: 'smooth' });
+    element.scrollBy({ left: -element.clientWidth, behavior: "smooth" });
   }
 
   scrollRight() {
     const element = this.scrollContainer.nativeElement;
-    element.scrollBy({ left: element.clientWidth, behavior: 'smooth' });
+    element.scrollBy({ left: element.clientWidth, behavior: "smooth" });
   }
 }

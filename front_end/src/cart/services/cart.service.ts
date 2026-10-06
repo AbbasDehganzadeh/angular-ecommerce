@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Product } from '../../models/product.model';
+import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable, combineLatest } from "rxjs";
+import { map } from "rxjs/operators";
+import { Product } from "../../models/product.model";
 
-const CART_STORAGE_KEY = 'CartItems';
+const CART_STORAGE_KEY = "CartItems";
 
-export interface CartItem extends Omit<Product, 'uri'> {
+export interface CartItem extends Omit<Product, "uri"> {
   quantity: number;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class CartService {
   private cartItems = new BehaviorSubject<CartItem[]>([]);
   private discount = new BehaviorSubject<number>(0);
@@ -29,7 +29,7 @@ export class CartService {
         this.cartItems.next(items);
       }
     } catch (error) {
-      console.error('Failed to initialize cart: ', error);
+      console.error("Failed to initialize cart: ", error);
       this.cartItems.next([]);
     }
   }
@@ -40,7 +40,7 @@ export class CartService {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
       this.cartItems.next(items);
     } catch (error) {
-      console.error('Failed to save cart: ', error);
+      console.error("Failed to save cart: ", error);
     }
   }
 
@@ -73,7 +73,7 @@ export class CartService {
 
     const currentItems = this.cartItems.value;
     const updatedItems = currentItems.map((item) =>
-      item.id === productId ? { ...item, quantity: quantity } : item
+      item.id === productId ? { ...item, quantity: quantity } : item,
     );
 
     this.saveCart(updatedItems);
@@ -85,9 +85,9 @@ export class CartService {
 
   private validateDiscount(code: string): [number, boolean] {
     const cooupns = new Map([
-      ['ROCK', 10],
-      ['HALF', 50],
-      ['COOL', 70],
+      ["ROCK", 10],
+      ["HALF", 50],
+      ["COOL", 70],
     ]);
     const rawCode = code.toUpperCase();
     for (const [c, d] of cooupns) {
@@ -115,33 +115,33 @@ export class CartService {
   getTotal(): Observable<number> {
     return this.cart$.pipe(
       map((items) =>
-        items.reduce((total, item) => total + item.price * item.quantity, 0)
-      )
+        items.reduce((total, item) => total + item.price * item.quantity, 0),
+      ),
     );
   }
 
   getFinal(): Observable<number> {
     return combineLatest([this.getTotal(), this.getDiscount()]).pipe(
-      map(([price, discount]) => price - discount)
+      map(([price, discount]) => price - discount),
     );
   }
 
   getDiscount(): Observable<number> {
     return combineLatest([this.getTotal(), this.discountPercent$]).pipe(
-      map(([price, discount]) => price * (discount / 100))
+      map(([price, discount]) => price * (discount / 100)),
     );
   }
 
   getItemCount(): Observable<number> {
     return this.cart$.pipe(
-      map((items) => items.reduce((count, item) => count + 1, 0))
+      map((items) => items.reduce((count, item) => count + 1, 0)),
     );
   }
 
   // Checks if product is in cart
   isInCart(productId: number): Observable<boolean> {
     return this.cart$.pipe(
-      map((items) => items.some((item) => item.id === productId))
+      map((items) => items.some((item) => item.id === productId)),
     );
   }
 }

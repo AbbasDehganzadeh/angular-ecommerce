@@ -1,24 +1,24 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig } from "@angular/core";
 import {
   provideRouter,
   PreloadAllModules,
   withPreloading,
   withComponentInputBinding,
-} from '@angular/router';
+} from "@angular/router";
 import {
   provideHttpClient,
   withFetch,
   withInterceptors,
-} from '@angular/common/http';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { routes } from './app.routes';
+} from "@angular/common/http";
+import { provideAnimations } from "@angular/platform-browser/animations";
+import { routes } from "./app.routes";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(
       routes,
       withComponentInputBinding(),
-      withPreloading(PreloadAllModules)
+      withPreloading(PreloadAllModules),
     ),
     provideHttpClient(withFetch(), withInterceptors([])),
     provideAnimations(),

@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
-import { FooterCompanyComponent } from './footer-company.component';
-import { FooterLinksComponent } from './footer-links.component';
-import { FooterNewsletterComponent } from './footer-newsletter.component';
-import { FooterSocialComponent } from './footer-social.component';
-import { FooterPaymentComponent } from './footer-payment.component';
+import { Component } from "@angular/core";
+import { FooterCompanyComponent } from "./footer-company.component";
+import { FooterLinksComponent } from "./footer-links.component";
+import { FooterNewsletterComponent } from "./footer-newsletter.component";
+import { FooterSocialComponent } from "./footer-social.component";
+import { FooterPaymentComponent } from "./footer-payment.component";
 
 @Component({
-  selector: 'app-footer',
+  selector: "app-footer",
   template: `
     <footer class="footer">
       <div class="footer-content">
@@ -20,7 +20,7 @@ import { FooterPaymentComponent } from './footer-payment.component';
       </div>
     </footer>
   `,
-  styleUrls: ['./footer.styles.scss'],
+  styleUrls: ["./footer.styles.scss"],
   standalone: true,
   imports: [
     FooterCompanyComponent,

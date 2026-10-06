@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
-import { HeroHeaderComponent } from './hero-header.component';
-import { HeroBannerComponent } from './hero-banner.component';
-import { HeroGalleryComponent } from './hero-gallery.component';
+import { Component } from "@angular/core";
+import { HeroHeaderComponent } from "./hero-header.component";
+import { HeroBannerComponent } from "./hero-banner.component";
+import { HeroGalleryComponent } from "./hero-gallery.component";
 
 @Component({
-  selector: 'app-hero',
+  selector: "app-hero",
   template: `
     <div class="hero-container">
       <div class="hero-content">

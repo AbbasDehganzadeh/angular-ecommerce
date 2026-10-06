@@ -1,14 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Product } from '../../../models/product.model';
-import { ProductService } from '../../services/product.service';
-import { CartService } from '../../../cart/services/cart.service';
-import { RandomService } from '../../../common/services/common.service';
+import { Component, Input, OnInit } from "@angular/core";
+import { Observable } from "rxjs";
+import { Product } from "../../../models/product.model";
+import { ProductService } from "../../services/product.service";
+import { CartService } from "../../../cart/services/cart.service";
+import { RandomService } from "../../../common/services/common.service";
 
 @Component({
-  selector: 'app-product',
-  templateUrl: './product.component.html',
-  styleUrl: './product.component.scss',
+  selector: "app-product",
+  templateUrl: "./product.component.html",
+  styleUrl: "./product.component.scss",
 })
 export class ProductComponent implements OnInit {
   simItems: Product[] = [];
@@ -19,7 +19,7 @@ export class ProductComponent implements OnInit {
   constructor(
     private product: ProductService,
     private cart: CartService,
-    private rand: RandomService
+    private rand: RandomService,
   ) {
     this.isInCart$ = this.cart.isInCart(Number(this._id));
   }
@@ -73,11 +73,11 @@ export class ProductComponent implements OnInit {
 
   item: Product = {
     id: 1,
-    title: 'Loading...',
-    description: 'Loading product details...',
+    title: "Loading...",
+    description: "Loading product details...",
     price: 0,
-    category: 'loading',
-    uri: 'https://picsum.photos/seed/loading/400',
+    category: "loading",
+    uri: "https://picsum.photos/seed/loading/400",
     rating: {
       rate: 0,
       count: 0,

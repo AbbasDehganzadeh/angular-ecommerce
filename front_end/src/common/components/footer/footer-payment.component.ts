@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
 @Component({
-  selector: 'app-footer-payment',
+  selector: "app-footer-payment",
   template: `
     <div class="payment-methods">
       <i class="fab fa-cc-visa" aria-label="Visa"></i>
@@ -11,16 +11,16 @@ import { Component } from '@angular/core';
   `,
   styles: [
     `
-    .payment-methods {
-      display: flex;
-      gap: var(--spacing-md);
-      
-      i {
-        font-size: 2rem;
-        color: #f5f5f5;
+      .payment-methods {
+        display: flex;
+        gap: var(--spacing-md);
+
+        i {
+          font-size: 2rem;
+          color: #f5f5f5;
+        }
       }
-    }
-  `,
+    `,
   ],
   standalone: true,
 })

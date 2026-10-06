@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-export const USER_COOKIE_KEY = 'SHOP_USER_KEY';
+export const USER_COOKIE_KEY = "SHOP_USER_KEY";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class CookieService {
   set(key: string, value: string, days = 7): void {
@@ -12,14 +12,14 @@ export class CookieService {
   }
 
   get(key: string): string {
-    const cookies = document.cookie.split(';');
+    const cookies = document.cookie.split(";");
     for (const cookie of cookies) {
-      const [cookieKey, cookieValue] = cookie.split('=').map((c) => c.trim());
-      if (cookieKey == key && key != '') {
+      const [cookieKey, cookieValue] = cookie.split("=").map((c) => c.trim());
+      if (cookieKey == key && key != "") {
         return cookieValue;
       }
     }
-    return '';
+    return "";
   }
 
   delete(key: string): void {

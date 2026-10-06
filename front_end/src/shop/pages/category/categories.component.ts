@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
-import { ProductService } from '../../services/product.service';
+import { Component } from "@angular/core";
+import { ProductService } from "../../services/product.service";
 
 @Component({
-  selector: 'app-categories',
-  templateUrl: 'categories.component.html',
+  selector: "app-categories",
+  templateUrl: "categories.component.html",
 })
 export class CategoriesComponent {
-  categories: string[] = ['A', 'B', 'C'];
+  categories: string[] = ["A", "B", "C"];
   constructor(private http: ProductService) {}
 
   getCategories() {

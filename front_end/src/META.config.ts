@@ -1,58 +1,58 @@
 export const META_URLS = new Map([
   [
-    '/home',
+    "/home",
     {
-      title: 'home Page',
-      describtion: 'This is a home page',
+      title: "home Page",
+      describtion: "This is a home page",
     },
   ],
   [
-    '/about-us',
+    "/about-us",
     {
-      title: 'About Us',
-      describtion: 'Get informed with us.',
+      title: "About Us",
+      describtion: "Get informed with us.",
     },
   ],
   [
-    '/faqs',
+    "/faqs",
     {
-      title: 'FAQs Page',
-      describtion: 'frequently asked questions',
+      title: "FAQs Page",
+      describtion: "frequently asked questions",
     },
   ],
   [
-    '/products',
+    "/products",
     {
-      title: 'products Page',
-      describtion: 'Where to find products',
+      title: "products Page",
+      describtion: "Where to find products",
     },
   ],
   [
-    '/user/signup',
+    "/user/signup",
     {
-      title: 'Signup Page',
-      describtion: '',
+      title: "Signup Page",
+      describtion: "",
     },
   ],
   [
-    '/user/login',
+    "/user/login",
     {
-      title: 'Login Page',
-      describtion: '',
+      title: "Login Page",
+      describtion: "",
     },
   ],
   [
-    '/user/logout',
+    "/user/logout",
     {
-      title: 'Logout Page',
-      describtion: '',
+      title: "Logout Page",
+      describtion: "",
     },
   ],
   [
-    '/user/profile',
+    "/user/profile",
     {
-      title: 'Profile Page',
-      describtion: 'There is where you can find yourself',
+      title: "Profile Page",
+      describtion: "There is where you can find yourself",
     },
   ],
 ]);

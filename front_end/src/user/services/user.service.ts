@@ -1,24 +1,29 @@
-import { Injectable } from '@angular/core';
-import { User } from '../../models/user.model';
-import { CookieService, USER_COOKIE_KEY } from '../../common/services/cookie.service';
+import { Injectable } from "@angular/core";
+import { User } from "../../models/user.model";
+import {
+  CookieService,
+  USER_COOKIE_KEY,
+} from "../../common/services/cookie.service";
 // import * as argon2 from 'argon2';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class UserService {
-  users: User[] = [{ username: 'john', email: 'a@b.c', password: '1234' }];
+  users: User[] = [{ username: "john", email: "a@b.c", password: "1234" }];
 
   constructor(private cookieService: CookieService) {}
 
   getUserName(value: string) {
     const user = this.users.find(
       (user) =>
-        user.username === value || user.email === value || user.email1 === value
+        user.username === value ||
+        user.email === value ||
+        user.email1 === value,
     );
-    return user?.username || '';
+    return user?.username || "";
   }
 
   getUser(name: string) {
-    return this.users.find((user) => user.username === name && name !== '');
+    return this.users.find((user) => user.username === name && name !== "");
   }
 
   getUserByName(name: string) {
@@ -27,7 +32,7 @@ export class UserService {
 
   getUserByEmail(email: string) {
     return this.users.find(
-      (user) => user.email == email || user.email1 == email
+      (user) => user.email == email || user.email1 == email,
     );
   }
 
@@ -41,7 +46,7 @@ export class UserService {
     const existingEmail = this.getUserByEmail(user.email);
 
     if (existingUser || existingEmail) {
-      throw new Error('User with this username or email already exists!');
+      throw new Error("User with this username or email already exists!");
     }
 
     const hashedPassword = await this.hashPassword(user.password);
@@ -55,7 +60,7 @@ export class UserService {
 
   async validatePassword(
     hashedPassword: string,
-    plainPassword: string
+    plainPassword: string,
   ): Promise<boolean> {
     // try {
     //   return await argon2.verify(hashedPassword, plainPassword);

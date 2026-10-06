@@ -1,14 +1,17 @@
-import { Injectable } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
-import { META_URLS } from '../../META.config';
+import { Injectable } from "@angular/core";
+import { Meta, Title } from "@angular/platform-browser";
+import { META_URLS } from "../../META.config";
 
-const DESCRIPTION = 'description';
+const DESCRIPTION = "description";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class MetaService {
-  constructor(private meta: Meta, private title: Title) {}
+  constructor(
+    private meta: Meta,
+    private title: Title,
+  ) {}
 
   updateMetaTags(route: string) {
     const meta = META_URLS.get(route);

@@ -17,11 +17,11 @@
 
           <div class="rating-container">
             <div class="stars">
-              @for (star of [1,2,3,4,5]; track star) {
-              <i
-                class="fas fa-star"
-                [class.filled]="star <= item.rating.rate"
-              ></i>
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <i
+                  class="fas fa-star"
+                  [class.filled]="star <= item.rating.rate"
+                ></i>
               }
             </div>
             <span class="rating-count">({{ item.rating.count }} reviews)</span>
@@ -32,21 +32,21 @@
           <div class="price-container">
             <span class="price">${{ item.price }}</span>
             @if (item.price > 100) {
-            <span class="shipping-badge">Free Shipping</span>
+              <span class="shipping-badge">Free Shipping</span>
             }
           </div>
 
           <div class="action-container">
             @if (isInCart$ | async) {
-            <a [routerLink]="['/cart']" class="btn btn-secondary">
-              <i class="fas fa-shopping-cart"></i>
-              View in Cart
-            </a>
+              <a [routerLink]="['/cart']" class="btn btn-secondary">
+                <i class="fas fa-shopping-cart"></i>
+                View in Cart
+              </a>
             } @else {
-            <button (click)="addItem()" class="btn btn-primary">
-              <i class="fas fa-cart-plus"></i>
-              Add to Cart
-            </button>
+              <button (click)="addItem()" class="btn btn-primary">
+                <i class="fas fa-cart-plus"></i>
+                Add to Cart
+              </button>
             }
             <button class="btn btn-outline" (click)="toggleWishlist()">
               <i
@@ -54,7 +54,7 @@
                 [class.fa-heart]="isWishlisted"
                 [class.fa-heart-o]="!isWishlisted"
               ></i>
-              {{ isWishlisted ? 'Wishlisted' : 'Add to Wishlist' }}
+              {{ isWishlisted ? "Wishlisted" : "Add to Wishlist" }}
             </button>
           </div>
 
@@ -79,41 +79,41 @@
 
   <!-- Recently Viewed Section -->
   @if (recentProducts.length > 0) {
-  <section class="recent-products">
-    <div class="section-container">
-      <h2 class="section-title">Recently Viewed</h2>
-      <div class="products-grid">
-        @for (product of recentProducts; track product.id) {
-        <app-card-compact
-          [id]="product.id"
-          [name]="product.title"
-          [category]="product.category"
-          [pictureUri]="product.uri"
-          [price]="product.price"
-        />
-        }
+    <section class="recent-products">
+      <div class="section-container">
+        <h2 class="section-title">Recently Viewed</h2>
+        <div class="products-grid">
+          @for (product of recentProducts; track product.id) {
+            <app-card-compact
+              [id]="product.id"
+              [name]="product.title"
+              [category]="product.category"
+              [pictureUri]="product.uri"
+              [price]="product.price"
+            />
+          }
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
   }
 
   <!-- Similar Products Section -->
   @if (simItems.length > 0) {
-  <section class="similar-products">
-    <div class="section-container">
-      <h2 class="section-title">Similar Products</h2>
-      <div class="products-grid">
-        @for (product of simItems; track product.id) {
-        <app-card-compact
-          [id]="product.id"
-          [name]="product.title"
-          [category]="product.category"
-          [pictureUri]="product.uri"
-          [price]="product.price"
-        />
-        }
+    <section class="similar-products">
+      <div class="section-container">
+        <h2 class="section-title">Similar Products</h2>
+        <div class="products-grid">
+          @for (product of simItems; track product.id) {
+            <app-card-compact
+              [id]="product.id"
+              [name]="product.title"
+              [category]="product.category"
+              [pictureUri]="product.uri"
+              [price]="product.price"
+            />
+          }
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
   }
 </div>

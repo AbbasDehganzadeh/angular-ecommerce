@@ -1,26 +1,26 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class CategoryService {
-  private selectedCategory = new BehaviorSubject<string>('');
+  private selectedCategory = new BehaviorSubject<string>("");
 
   constructor(private router: Router) {}
 
   selectCategory(category: string) {
     this.selectedCategory.next(category);
-    this.router.navigate(['/shop/products'], {
+    this.router.navigate(["/shop/products"], {
       queryParams: { category },
-      queryParamsHandling: 'merge',
+      queryParamsHandling: "merge",
     });
   }
 
   clearCategory() {
-    this.selectedCategory.next('');
-    this.router.navigate(['/shop/products'], {
+    this.selectedCategory.next("");
+    this.router.navigate(["/shop/products"], {
       queryParams: { category: null },
-      queryParamsHandling: 'merge',
+      queryParamsHandling: "merge",
     });
   }
 }

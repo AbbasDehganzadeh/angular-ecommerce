@@ -26,9 +26,11 @@
       <h2>Categories</h2>
     </div>
     <div class="categories-grid">
-      @for (category of categories; track category) { @if ($index < 3) {
-      <app-card-inline [title]="category"></app-card-inline>
-      } }
+      @for (category of categories; track category) {
+        @if ($index < 3) {
+          <app-card-inline [title]="category"></app-card-inline>
+        }
+      }
       <button mat-flat-button>
         <a [routerLink]="['/shop', 'categories']" class="not-anchor">
           View All Categories

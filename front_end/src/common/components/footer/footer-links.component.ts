@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component } from "@angular/core";
+import { RouterLink } from "@angular/router";
 
 @Component({
-  selector: 'app-footer-links',
+  selector: "app-footer-links",
   template: `
     <div class="footer-links">
       <div class="footer-section">
@@ -13,6 +13,7 @@ import { RouterLink } from '@angular/router';
           <li><a routerLink="/cart">Cart</a></li>
           <li><a routerLink="/about">About</a></li>
           <li><a routerLink="/contact-us">Contact Us</a></li>
+          <li><a routerLink="/user/profile">Profile</a></li>
         </ul>
       </div>
       <div class="footer-section">
