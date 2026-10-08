@@ -1,6 +1,10 @@
 import { Component, OnInit } from "@angular/core";
 import { Product } from "../models/product.model";
-import { ProductService } from "../shop/services/product.service";
+import {
+  ProductService,
+  productQueryType,
+  sortingType,
+} from "../shop/services/product.service";
 import { RandomService } from "../common/services/common.service";
 
 @Component({
@@ -8,34 +12,35 @@ import { RandomService } from "../common/services/common.service";
   templateUrl: "main.component.html",
 })
 export class MainComponent implements OnInit {
+  categories: string[] = [];
+  items: Product[] = [];
+  popitems = this.items;
+
   constructor(
-    private product: ProductService,
-    private rand: RandomService,
+    private productService: ProductService,
+    private randService: RandomService,
   ) {}
 
   getProducts() {
-    this.product.getProducts().subscribe((data) => {
-      data.map((obj) => {
-        let random = this.rand.generateRandom();
-        obj.uri = `https://picsum.photos/seed/${random}/100`;
-      });
-      this.items = data;
-    });
+    const sort: sortingType = "~time";
+    const query: productQueryType = { sort, limit: 7 };
+    this.productService
+      .getProducts(query)
+      .subscribe((data) => (this.items = data.products));
   }
 
   getPopProducts() {
-    this.product.getProducts().subscribe((data) => {
-      data = this.product.sortProducts(data, "rating");
-      data.map((obj) => {
-        let random = this.rand.generateRandom();
-        obj.uri = `https://picsum.photos/seed/${random}/100`;
-      });
-      this.popitems = data;
-    });
+    const sort: sortingType = "rating";
+    const query: productQueryType = { sort, limit: 7 };
+    this.productService
+      .getProducts(query)
+      .subscribe((data) => (this.popitems = data.products));
   }
 
   getCategories() {
-    this.product.getCategories().subscribe((data) => (this.categories = data));
+    this.productService
+      .getCategories()
+      .subscribe((data) => (this.categories = data.categories));
   }
 
   ngOnInit() {
@@ -43,8 +48,4 @@ export class MainComponent implements OnInit {
     this.getPopProducts();
     this.getCategories();
   }
-
-  categories: string[] = ["A", "B", "C"];
-  items: Product[] = [];
-  popitems = this.items;
 }

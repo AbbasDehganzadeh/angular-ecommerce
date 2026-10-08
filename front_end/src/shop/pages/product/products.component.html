@@ -3,11 +3,9 @@
     <h1>Products</h1>
     <app-filter-product
       [keyword]="search"
-      [MIN]="valueStart"
-      [MAX]="valueEnd"
-      (categoryChange)="updateCategory($event)"
-      (countChange)="updateCount($event)"
-      (slideChange)="updateSlide($event)"
+      [MIN]="min()"
+      [MAX]="max()"
+      [productsCount]="productsCount()"
     >
     </app-filter-product>
   </div>
@@ -28,19 +26,17 @@
   @if (products$ | async; as products) {
     <div class="products-grid">
       @for (item of products; track item.id) {
-        @if ($index < count) {
-          <div class="product-card">
-            <app-card-full
-              [id]="item.id"
-              [name]="item.title"
-              [category]="item.category"
-              [description]="item.description"
-              [price]="item.price"
-              [pictureuri]="item.uri"
-            >
-            </app-card-full>
-          </div>
-        }
+        <div class="product-card">
+          <app-card-full
+            [id]="item.id"
+            [name]="item.title"
+            [category]="item.category"
+            [description]="item.description"
+            [price]="item.price"
+            [pictureuri]="item.uri"
+          >
+          </app-card-full>
+        </div>
       }
     </div>
   }

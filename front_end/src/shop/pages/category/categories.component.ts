@@ -6,11 +6,13 @@ import { ProductService } from "../../services/product.service";
   templateUrl: "categories.component.html",
 })
 export class CategoriesComponent {
-  categories: string[] = ["A", "B", "C"];
-  constructor(private http: ProductService) {}
+  categories: string[] = [];
+  constructor(private productService: ProductService) {}
 
   getCategories() {
-    this.http.getCategories().subscribe((data) => (this.categories = data));
+    this.productService
+      .getCategories()
+      .subscribe((data) => (this.categories = data.categories));
   }
 
   ngOnInit() {

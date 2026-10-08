@@ -32,7 +32,11 @@
         }
       }
       <button mat-flat-button>
-        <a [routerLink]="['/shop', 'categories']" class="not-anchor">
+        <a
+          [routerLink]="['/shop', 'categories']"
+          [queryParams]="{ _sort: '!time' }"
+          class="not-anchor"
+        >
           View All Categories
         </a>
       </button>

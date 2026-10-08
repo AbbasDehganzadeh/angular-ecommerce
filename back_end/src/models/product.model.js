@@ -1,4 +1,5 @@
 import { notFound } from "../utils/http.js";
+import { formatDateNow } from "../utils/format.js";
 
 const COLUMNS = `id, title, description, price, category, uri,
   rating_rate, rating_count,
@@ -13,6 +14,8 @@ const SORT_CLAUSES = {
   "~rating": "rating_rate ASC",
   count: "rating_count DESC",
   "~count": "rating_count ASC",
+  time: "id ASC",
+  "~time": "id DESC",
 };
 
 export const SORT_KEYS = Object.keys(SORT_CLAUSES);
@@ -40,21 +43,25 @@ export function listProducts(
     conditions.push("price <= ?");
     values.push(max);
   }
+  conditions.push("deleted_at IS NULL");
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
   const order = SORT_CLAUSES[sort] ?? SORT_CLAUSES.alphabet;
-  const sql = `SELECT ${COLUMNS} FROM products ${where}
-    ORDER BY ${order} LIMIT ? OFFSET ?`;
+  const sql = `SELECT ${COLUMNS}, count(*) OVER() AS products_count FROM products
+    ${where} ORDER BY ${order} LIMIT ? OFFSET ?`;
 
-  return db
-    .prepare(sql)
-    .all(...values, limit ?? 100, offset ?? 0)
-    .map(normalize);
+  const products = db.prepare(sql).all(...values, limit ?? 20, offset ?? 0);
+  return {
+    products: products.map(normalize),
+    productsCount: products[0]?.products_count,
+  };
 }
 
 export function findProduct(db, id) {
   const row = db
-    .prepare(`SELECT ${COLUMNS} FROM products WHERE id = ?`)
+    .prepare(
+      `SELECT ${COLUMNS} FROM products WHERE id = ? AND deleted_at IS NULL`,
+    )
     .get(id);
   return row ? normalize(row) : null;
 }
@@ -69,6 +76,7 @@ export function listCategories(db) {
   return db
     .prepare(
       `SELECT DISTINCT category FROM products
+       WHERE deleted_at IS NULL
        ORDER BY category COLLATE NOCASE ASC`,
     )
     .all()
@@ -133,8 +141,12 @@ export function updateProduct(db, id, patch) {
 }
 
 export function deleteProduct(db, id) {
-  const info = db.prepare("DELETE FROM products WHERE id = ?").run(id);
-  if (info.changes === 0) throw notFound("Product not found");
+  const product = findProduct(db, id);
+  if (product === null) throw notFound("Product not found");
+  db.prepare("UPDATE products SET deleted_at = ? WHERE id = ?").run(
+    formatDateNow(),
+    id,
+  );
 }
 
 function normalize(row) {

@@ -35,17 +35,15 @@ import { CardCompactComponent } from "../../common/components";
 
       <div #scrollContainer class="products-container" (scroll)="onScroll()">
         @for (product of products; track product.id) {
-          @if ($index < 5) {
-            <div class="product-card">
-              <app-card-compact
-                [id]="product.id"
-                [name]="product.title"
-                [category]="product.category"
-                [pictureUri]="product.uri"
-                [price]="product.price"
-              />
-            </div>
-          }
+          <div class="product-card">
+            <app-card-compact
+              [id]="product.id"
+              [name]="product.title"
+              [category]="product.category"
+              [pictureUri]="product.uri"
+              [price]="product.price"
+            />
+          </div>
         }
       </div>
     </section>

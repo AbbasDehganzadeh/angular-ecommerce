@@ -63,7 +63,6 @@ export class UserService {
   }
 
   getUserDetail(): Observable<{ user: User }> {
-    const token = this.getUserToken();
     return this.http.get<{ user: User }>(`${this.API_URL}/me`).pipe(
       tap((response) => console.log("fetching profile...", response)),
       catchError((error) => this.handleError(error)),

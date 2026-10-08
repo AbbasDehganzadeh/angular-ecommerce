@@ -6,9 +6,11 @@ import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatInputModule } from "@angular/material/input";
 import { MatListModule } from "@angular/material/list";
+import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSliderModule } from "@angular/material/slider";
 import { ProductService, sortingType } from "../services/product.service";
+import { CategoryService } from "../services/category.service";
 
 @Component({
   selector: "app-filter-product",
@@ -81,7 +83,7 @@ import { ProductService, sortingType } from "../services/product.service";
             <span>{{ MIN | currency }}</span>
             <span>{{ MAX | currency }}</span>
           </div>
-          <mat-slider discrete [min]="0" [max]="1000" (change)="updateSlide()">
+          <mat-slider discrete [min]="valueStart" [max]="valueEnd" (change)="updateSlide()">
             <input [(value)]="MIN" matSliderStartThumb />
             <input [(value)]="MAX" matSliderEndThumb />
           </mat-slider>
@@ -102,6 +104,19 @@ import { ProductService, sortingType } from "../services/product.service";
             >
           </mat-button-toggle-group>
         </div>
+      </div>
+
+      <!-- Paginator Section -->
+      <div class="paginator-section">
+        <mat-paginator
+          [length]="productsCount"
+          [pageSize]="count"
+          [pageSizeOptions]="[5, 10, 20]"
+          [hidePageSize]="true"
+          (page)="updatePageCount($event)"
+          aria-label="Select page of products"
+        >
+        </mat-paginator>
       </div>
     </div>
   `,
@@ -193,6 +208,17 @@ import { ProductService, sortingType } from "../services/product.service";
         margin-top: var(--spacing-xs);
       }
 
+      /* Paginator Section */
+      .paginator-section {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: var(--spacing-sm);
+      }
+
+      mat-paginator {
+        background: transparent;
+      }
+
       /* Responsive Layout */
       @media (max-width: 767px) {
         .filter-row {
@@ -210,6 +236,10 @@ import { ProductService, sortingType } from "../services/product.service";
         .items-count {
           margin-top: var(--spacing-md);
         }
+
+        .paginator-section {
+          justify-content: center;
+        }
       }
     `,
   ],
@@ -221,67 +251,86 @@ import { ProductService, sortingType } from "../services/product.service";
     MatExpansionModule,
     MatInputModule,
     MatListModule,
+    MatPaginatorModule,
     MatSelectModule,
     MatSliderModule,
   ],
 })
 export class FilterProductComponent implements OnInit {
-  constructor(
-    private product: ProductService,
-    private router: Router,
-  ) {}
-
+  categories: string[] = [];
+  category!: string;
   sorting!: sortingType;
-  category = "";
-  count = 5;
-  valueStart = 0;
-  valueEnd = 1000;
-
-  @Output() categoryChange = new EventEmitter<string>();
-  @Output() countChange = new EventEmitter<number>();
-  @Output() slideChange = new EventEmitter<number[]>();
+  valueStart!:number;
+  valueEnd!:number;
+  count!:number;
+  page!:number;
 
   @Input() keyword = "";
   @Input({ required: true }) MIN!: number;
   @Input({ required: true }) MAX!: number;
+  @Input() productsCount = 0;
+
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService,
+    private router: Router,
+  ) {}
 
   getCategories() {
-    this.product.getCategories().subscribe((data) => (this.categories = data));
-  }
-
-  updateCategory() {
-    this.categoryChange.emit(this.category);
-  }
-
-  updateCount(count: number) {
-    this.count = count;
-    this.countChange.emit(count);
-  }
-
-  sortProducts(value: string) {
-    this.sorting = value as sortingType;
-    this.router.navigate(["/shop/products"], {
-      queryParams: { _sort: value },
-      queryParamsHandling: "merge",
-    });
+    this.productService
+      .getCategories()
+      .subscribe((data) => (this.categories = data.categories));
   }
 
   updateSearch() {
+    this.page = 1;
     this.router.navigate(["/shop/products"], {
-      queryParams: { _kw: this.keyword },
+      queryParams: { page:this.page,_kw: this.keyword },
       queryParamsHandling: "merge",
     });
   }
 
+  sortProducts(value: string) {
+    this.page = 1;
+    this.sorting = value as sortingType;
+    this.router.navigate(["/shop/products"], {
+      queryParams: { page:this.page,_sort: value },
+      queryParamsHandling: "merge",
+    });
+  }
+
+  updateCategory() {
+    this.page = 1;
+    this.categoryService.selectCategory(this.category);
+  }
+
   updateSlide() {
-    this.slideChange.emit([this.MIN, this.MAX]);
+    this.page = 1;
+    this.router.navigate(["/shop/products"], {
+      queryParams: { page:this.page, _min: this.MIN, _max: this.MAX },
+      queryParamsHandling: "merge",
+    });
+  }
+
+  updateCount(count: number) {
+    this.page = 1
+    this.router.navigate(["/shop/products"], {
+      queryParams: { page:this.page, count },
+      queryParamsHandling: "merge",
+    });
+  }
+
+  updatePageCount(event: PageEvent) {
+    this.page = event.pageIndex + 1
+    this.router.navigate(["/shop/products"], {
+      queryParams: { page:this.page, count:this.count },
+      queryParamsHandling: "merge",
+    });
   }
 
   ngOnInit() {
     this.getCategories();
-    this.valueStart = this.MIN;
-    this.valueEnd = this.MAX;
+    this.valueStart=this.MIN;
+    this.valueEnd=this.MAX;
   }
-
-  categories: string[] = [];
 }

@@ -19,32 +19,34 @@ const MAX_LIMIT = 200;
 
 export function productRoutes(router, db) {
   router.get("/api/products", (ctx) => {
-    const { _kw, _min, _max, _sort, category, limit, offset } = ctx.query;
+    const { search, min, max, sort, category, limit, offset } = ctx.query;
+    const { products, productsCount } = listProducts(db, {
+      category: category || undefined,
+      search: search || undefined,
+      min: min ? requireNumber(min, "min", { max: 1e9 }) : undefined,
+      max: max ? requireNumber(max, "max", { max: 1e9 }) : undefined,
+      sort: SORT_KEYS.includes(sort) ? sort : undefined,
+      limit: limit
+        ? requireNumber(limit, "limit", { max: MAX_LIMIT })
+        : undefined,
+      offset: offset
+        ? requireNumber(offset, "offset", { max: 1e6 })
+        : undefined,
+    });
 
-    return {
-      products: listProducts(db, {
-        category: category || undefined,
-        search: _kw || undefined,
-        min: _min ? requireNumber(_min, "_min", { max: 1e9 }) : undefined,
-        max: _max ? requireNumber(_max, "_max", { max: 1e9 }) : undefined,
-        sort: SORT_KEYS.includes(_sort) ? _sort : undefined,
-        limit: limit
-          ? requireNumber(limit, "limit", { max: MAX_LIMIT })
-          : undefined,
-        offset: offset
-          ? requireNumber(offset, "offset", { max: 1e6 })
-          : undefined,
-      }),
-    };
+    return { products, productsCount };
   });
 
   router.get("/api/products/categories", () => ({
     categories: listCategories(db),
   }));
 
-  router.get("/api/products/category/:category", (ctx) => ({
-    products: listProducts(db, { category: ctx.params.category }),
-  }));
+  router.get("/api/products/category/:category", (ctx) => {
+    const { products, productsCount } = listProducts(db, {
+      category: ctx.params.category,
+    });
+    return { products, productsCount };
+  });
 
   router.get("/api/products/:id", (ctx) => ({
     product: getProduct(db, requireId(ctx.params.id)),

@@ -11,8 +11,6 @@ import {
 } from "rxjs";
 import { Product } from "../../../models/product.model";
 import { ProductService, sortingType } from "../../services/product.service";
-import { CategoryService } from "../../services/category.service";
-import { RandomService } from "../../../common/services/common.service";
 
 @Component({
   selector: "app-products",
@@ -20,29 +18,26 @@ import { RandomService } from "../../../common/services/common.service";
 })
 export class ProductsComponent {
   products$: Observable<Product[]>;
+  productsCount = signal<number>(0);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
   sorting: sortingType = "alphabet";
   category = "";
   search = "";
+
   valueStart!: number;
   valueEnd!: number;
-
-  // Initialize signals with proper types
   private minPrice = signal<number>(0);
   private maxPrice = signal<number>(1000);
-
-  // Computed signals for external access
   readonly min = computed(() => this.minPrice());
   readonly max = computed(() => this.maxPrice());
 
-  // initial product count
-  count = 5;
+  // initial product count & page
+  count!: number;
+  page!: number;
 
   constructor(
     private productService: ProductService,
-    private categoryService: CategoryService,
-    private rand: RandomService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -51,46 +46,36 @@ export class ProductsComponent {
         this.loading.set(true);
         this.error.set(null);
 
-        this.sorting = params["_sort"] || "alphabet";
         this.search = params["_kw"] || "";
-        this.valueStart = params["_min"] || 0;
-        this.valueEnd = params["_max"] || 1000;
+        this.valueStart = params["_min"] || this.minPrice();
+        this.valueEnd = params["_max"] || this.maxPrice();
+        this.sorting = params["_sort"] || "alphabet";
         this.category = params["category"] || "";
+        this.count = Number(params["count"]) || 5;
+        this.page = Number(params["page"]) || 1;
+        const query = {
+          search: this.search,
+          min: this.valueStart,
+          max: this.valueEnd,
+          sort: this.sorting,
+          category: this.category,
+          limit: this.count,
+          offset: (this.page - 1) * this.count,
+        };
 
-        return (
-          this.category
-            ? this.productService.getProductByCategory(this.category)
-            : this.productService.getProducts()
-        ).pipe(
+        return this.productService.getProducts(query).pipe(
+          map((data) => {
+            this.productsCount.set(data.productsCount);
+            return data.products;
+          }),
           tap((products) => {
+            console.info({ products, productsCount: this.productsCount() });
             // Update max price based on highest product price
             const maxProductPrice = Math.max(...products.map((p) => p.price));
             if (maxProductPrice > this.maxPrice()) {
               this.maxPrice.set(maxProductPrice);
-              this.valueEnd = maxProductPrice;
             }
           }),
-          map((products) =>
-            products.filter((item) => {
-              const search = this.search.toLowerCase();
-              let include = true;
-              if (item.price < this.valueStart && item.price > this.valueEnd)
-                include = false;
-              if (
-                search != "" &&
-                !(
-                  item.title.toLowerCase().includes(search) ||
-                  item.description.toLowerCase().includes(search)
-                )
-              )
-                include = false;
-              return include;
-            }),
-          ),
-          map((products) => this.addImageUrls(products)),
-          map((products) =>
-            this.productService.sortProducts(products, this.sorting),
-          ),
           catchError((error) => {
             this.error.set("Failed to load products. Please try again.");
             return of([]);
@@ -101,30 +86,9 @@ export class ProductsComponent {
     );
   }
 
-  private addImageUrls(products: Product[]): Product[] {
-    return products.map((product) => ({
-      ...product,
-      uri: `https://picsum.photos/seed/${this.rand.generateRandom()}/100`,
-    }));
-  }
-
-  updateCount(count: number) {
-    this.count = count;
-  }
-
-  updateSlide(values: number[]) {
-    const [min, max] = values;
+  retryLoading() {
     this.router.navigate(["/shop/products"], {
-      queryParams: { _min: min, _max: max },
       queryParamsHandling: "merge",
     });
-  }
-
-  updateCategory(category: string) {
-    this.categoryService.selectCategory(category);
-  }
-
-  retryLoading() {
-    this.categoryService.selectCategory(this.category);
   }
 }
