@@ -143,7 +143,9 @@ export class ProductService {
         `${this.API_URL}/category/${category}`,
       )
       .pipe(
-        tap((response) => console.log(`Fetching products in category ${category}...`, response)),
+        tap((response) =>
+          console.log(`Fetching products in category ${category}...`, response),
+        ),
         tap(() => this.retryStrategy()),
         catchError((error) => this.handleError(error, this.fallbackProducts)),
       );

@@ -83,7 +83,11 @@ import { CategoryService } from "../services/category.service";
             <span>{{ MIN | currency }}</span>
             <span>{{ MAX | currency }}</span>
           </div>
-          <mat-slider discrete [min]="valueStart" [max]="valueEnd" (change)="updateSlide()">
+            discrete
+            [min]="valueStart"
+            [max]="valueEnd"
+            (change)="updateSlide()"
+          >
             <input [(value)]="MIN" matSliderStartThumb />
             <input [(value)]="MAX" matSliderEndThumb />
           </mat-slider>
@@ -260,10 +264,10 @@ export class FilterProductComponent implements OnInit {
   categories: string[] = [];
   category!: string;
   sorting!: sortingType;
-  valueStart!:number;
-  valueEnd!:number;
-  count!:number;
-  page!:number;
+  valueStart!: number;
+  valueEnd!: number;
+  count!: number;
+  page!: number;
 
   @Input() keyword = "";
   @Input({ required: true }) MIN!: number;
@@ -285,7 +289,7 @@ export class FilterProductComponent implements OnInit {
   updateSearch() {
     this.page = 1;
     this.router.navigate(["/shop/products"], {
-      queryParams: { page:this.page,_kw: this.keyword },
+      queryParams: { page: this.page, _kw: this.keyword },
       queryParamsHandling: "merge",
     });
   }
@@ -294,7 +298,7 @@ export class FilterProductComponent implements OnInit {
     this.page = 1;
     this.sorting = value as sortingType;
     this.router.navigate(["/shop/products"], {
-      queryParams: { page:this.page,_sort: value },
+      queryParams: { page: this.page, _sort: value },
       queryParamsHandling: "merge",
     });
   }
@@ -307,23 +311,23 @@ export class FilterProductComponent implements OnInit {
   updateSlide() {
     this.page = 1;
     this.router.navigate(["/shop/products"], {
-      queryParams: { page:this.page, _min: this.MIN, _max: this.MAX },
+      queryParams: { page: this.page, _min: this.MIN, _max: this.MAX },
       queryParamsHandling: "merge",
     });
   }
 
   updateCount(count: number) {
-    this.page = 1
+    this.page = 1;
     this.router.navigate(["/shop/products"], {
-      queryParams: { page:this.page, count },
+      queryParams: { page: this.page, count },
       queryParamsHandling: "merge",
     });
   }
 
   updatePageCount(event: PageEvent) {
-    this.page = event.pageIndex + 1
+    this.page = event.pageIndex + 1;
     this.router.navigate(["/shop/products"], {
-      queryParams: { page:this.page, count:this.count },
+      queryParams: { page: this.page, count: this.count },
       queryParamsHandling: "merge",
     });
   }

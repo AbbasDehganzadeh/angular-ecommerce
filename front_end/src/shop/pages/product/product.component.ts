@@ -30,8 +30,7 @@ export class ProductComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
-  ) {
-  }
+  ) {}
 
   _id!: string;
   @Input()
@@ -76,14 +75,11 @@ export class ProductComponent implements OnInit {
 
   ngOnInit() {
     this.isInCart$ = this.cartService.isInCart(Number(this._id));
-    this.getRecentProducts()
+    this.getRecentProducts();
   }
 
-  ngOnChanges()
-  {
+  ngOnChanges() {
     this.isInCart$ = this.cartService.isInCart(Number(this._id));
-  if (this.id !== this._id) {
-    this.getRecentProducts()
-    }
+    this.getRecentProducts();
   }
 }
