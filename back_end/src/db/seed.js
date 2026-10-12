@@ -1,5 +1,6 @@
 import { createUser } from "../models/user.model.js";
 import { hashPassword } from "../utils/password.js";
+import { formatDate } from "../utils/format.js";
 import { openDatabase } from "./database.js";
 import { config } from "../config.js";
 
@@ -21,20 +22,12 @@ const PRODUCTS = [
     count: 198,
   },
   {
-    title: "4K Monitor",
+    title: "4K Sony Monitor",
     description: "27 inch IPS display with 144Hz refresh rate.",
-    price: 349.0,
+    price: 399.99,
     category: "electronics",
-    rate: 4.2,
-    count: 76,
-  },
-  {
-    title: "Classic Denim Jacket",
-    description: "Mid-weight cotton denim jacket, unisex fit.",
-    price: 74.25,
-    category: "clothing",
-    rate: 4.1,
-    count: 154,
+    rate: 4.9,
+    count: 50,
   },
   {
     title: "Merino Wool Sweater",
@@ -47,23 +40,23 @@ const PRODUCTS = [
   {
     title: "Running Shoes",
     description: "Lightweight trainers with responsive foam sole.",
-    price: 112.4,
+    price: 119.99,
     category: "clothing",
     rate: 4.4,
-    count: 241,
+    count: 2410,
   },
   {
     title: "The Pragmatic Programmer",
     description: "A guide to the craft of software development.",
-    price: 42.9,
+    price: 49.99,
     category: "books",
     rate: 4.8,
-    count: 512,
+    count: 5120,
   },
   {
     title: "Designing Data-Intensive Applications",
     description: "Patterns for scalable, reliable data systems.",
-    price: 58.75,
+    price: 69.99,
     category: "books",
     rate: 4.9,
     count: 634,
@@ -71,7 +64,7 @@ const PRODUCTS = [
   {
     title: "Ceramic Mug Set",
     description: "Set of four stoneware mugs, dishwasher safe.",
-    price: 24.0,
+    price: 29.99,
     category: "home",
     rate: 3.9,
     count: 143,
@@ -87,7 +80,7 @@ const PRODUCTS = [
   {
     title: "Vitamin C Serum",
     description: "Brightening facial serum with 15% vitamin C.",
-    price: 32.6,
+    price: 39.99,
     category: "beauty",
     rate: 4.0,
     count: 205,
@@ -95,17 +88,73 @@ const PRODUCTS = [
   {
     title: "Sandalwood Eau de Parfum",
     description: "Warm woody fragrance, 50ml bottle.",
-    price: 68.0,
+    price: 79.99,
     category: "beauty",
     rate: 4.2,
     count: 91,
   },
+  {
+    title: "The Great Gatsby",
+    description: "A classic novel by F. Scott Fitzgerald.",
+    price: 12.99,
+    category: "books",
+    rate: 4.5,
+    count: 123,
+  },
+  {
+    title: "Apple MacBook Pro",
+    description: "13-inch MacBook Pro with M1 chip, 8GB RAM, 256GB SSD.",
+    price: 1299.99,
+    category: "electronics",
+    rate: 4.7,
+    count: 100,
+  },
+  {
+    title: "Samsung Galaxy S26 Ultra",
+    description: "5G smartphone with 1TB storage, 12GB RAM.",
+    price: 1999.99,
+    category: "electronics",
+    rate: 4.9,
+    count: 50,
+  },
+  {
+    title: "IKEA Table",
+    description: "4-seater dining table with glass top.",
+    price: 199.99,
+    category: "home",
+    rate: 4.7,
+    count: 100,
+  },
+  {
+    title: "Nike Air Max",
+    description: "Running shoes with air cushioning.",
+    price: 149.99,
+    category: "clothing",
+    rate: 4.7,
+    count: 50,
+  },
+  {
+    title: "Dior Eau de Parfum",
+    description: "Luxurious fragrance with woody notes.",
+    price: 199.99,
+    category: "beauty",
+    rate: 4.9,
+    count: 30,
+  },
+  {
+    title: "Dyson Supersonic Hair Dryer",
+    description: "Professional hair dryer with 3000W power.",
+    price: 399.99,
+    category: "electronics",
+    rate: 4.8,
+    count: 20,
+  },
 ];
 
 const COUPONS = [
-  ["ROCK", 10],
-  ["HALF", 50],
-  ["COOL", 90],
+  ["HALF", 50, formatDate(new Date(Date.now() + 30 * 60 * 1000))], // 30 minutes
+  ["COOL", 90, formatDate(new Date(Date.now() + 24 * 60 * 60 * 1000))], // 1 day
+  ["ROCK", 10, formatDate(new Date(Date.now() + 5 * 24 * 60 * 60 * 1000))], // 5 days
 ];
 
 const DEMO_USER = {
@@ -131,7 +180,7 @@ export function seed(db) {
         product.description,
         product.price,
         product.category,
-        `https://picsum.photos/seed/${slug(product.title)}/400`,
+        `https://picsum.photos/seed/${slug(product.title)}/400/300`,
         product.rate,
         product.count,
       );
@@ -140,10 +189,10 @@ export function seed(db) {
   }
 
   const insertCoupon = db.prepare(
-    "INSERT OR IGNORE INTO coupons (code, percent) VALUES (?, ?)",
+    "INSERT OR IGNORE INTO coupons (code, percent, expired_at) VALUES (?, ?, ?)",
   );
-  for (const [code, percent] of COUPONS) {
-    summary.coupons += insertCoupon.run(code, percent).changes;
+  for (const [code, percent, expired_at] of COUPONS) {
+    summary.coupons += insertCoupon.run(code, percent, expired_at).changes;
   }
 
   if (count(db, "users") === 0) {

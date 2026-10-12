@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS users (
   last_loggedin TEXT NOT NULL DEFAULT (datetime('now')),
   deleted_at TEXT
 );
-
 CREATE TABLE IF NOT EXISTS products (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
@@ -21,30 +20,31 @@ CREATE TABLE IF NOT EXISTS products (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   deleted_at TEXT
 );
-
 CREATE INDEX IF NOT EXISTS idx_products_category ON products (category);
-
 CREATE TABLE IF NOT EXISTS coupons (
   code TEXT PRIMARY KEY COLLATE NOCASE,
-  percent REAL NOT NULL CHECK (percent > 0 AND percent < 100)
+  percent REAL NOT NULL CHECK (
+    percent > 0
+    AND percent < 100
+  ),
+  expired_at TEXT NOT NULL DEFAULT (datetime('now', '+10 minutes'))
 );
-
 CREATE TABLE IF NOT EXISTS orders (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tag VARCHAR(32) UNIQUE NOT NULL DEFAULT (hex(randomblob(16))),
   user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   status TEXT NOT NULL DEFAULT 'pending',
   subtotal REAL NOT NULL,
   discount REAL NOT NULL DEFAULT 0,
   total REAL NOT NULL,
-  payment_method TEXT NOT NULL,
+  payment_method TEXT NOT NULL DEFAULT "credit" CHECK (payment_method in ('cash', 'card', 'credit')),
   payment_reference TEXT,
   payment_reason TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  expired_at TEXT NOT NULL DEFAULT (datetime('now', '+10 days')),
   deleted_at TEXT
 );
-
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders (user_id);
-
 CREATE TABLE IF NOT EXISTS order_items (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   order_id INTEGER NOT NULL REFERENCES orders (id) ON DELETE CASCADE,
@@ -53,5 +53,4 @@ CREATE TABLE IF NOT EXISTS order_items (
   price REAL NOT NULL,
   quantity INTEGER NOT NULL CHECK (quantity > 0)
 );
-
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items (order_id);

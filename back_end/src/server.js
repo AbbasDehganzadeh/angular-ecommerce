@@ -39,7 +39,7 @@ export function createApp({
 
     try {
       const { pathname, query } = splitUrl(req.url ?? "/");
-      console.info({ pathname, query });
+      console.info({ method: req.method, pathname, query });
       const route = router.match(req.method ?? "GET", pathname);
       if (!route) throw notFound(`No route for ${req.method} ${pathname}`);
 
