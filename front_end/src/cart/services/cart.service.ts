@@ -1,7 +1,8 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, combineLatest } from "rxjs";
+import { inject, Injectable } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { Product } from "../../models/product.model";
+import { orderResponse, OrderService } from "./order.service";
 
 const CART_STORAGE_KEY = "CartItems";
 
@@ -12,11 +13,9 @@ export interface CartItem extends Omit<Product, "uri"> {
 @Injectable({ providedIn: "root" })
 export class CartService {
   private cartItems = new BehaviorSubject<CartItem[]>([]);
-  private discount = new BehaviorSubject<number>(0);
-  discountPercent$ = this.discount.asObservable();
   cart$ = this.cartItems.asObservable();
 
-  constructor() {
+  constructor(private orderService: OrderService) {
     this.initializeCart();
   }
 
@@ -82,53 +81,11 @@ export class CartService {
   clearCart(): void {
     this.saveCart([]);
   }
-
-  private validateDiscount(code: string): [number, boolean] {
-    const cooupns = new Map([
-      ["ROCK", 10],
-      ["HALF", 50],
-      ["COOL", 70],
-    ]);
-    const rawCode = code.toUpperCase();
-    for (const [c, d] of cooupns) {
-      if (rawCode.includes(c)) {
-        return [d, true];
-      }
-    }
-    return [0, false];
-  }
-
-  setDiscount(code: string) {
-    const [newdiscount, ok] = this.validateDiscount(code);
-    if (ok) {
-      this.discount.next(newdiscount);
-      return;
-    }
-    const discount = this.discount.value;
-    if (newdiscount < 0 || newdiscount >= 100) {
-      this.discount.next(discount);
-      return;
-    }
-    this.discount.next(discount);
-  }
-
   getTotal(): Observable<number> {
     return this.cart$.pipe(
       map((items) =>
         items.reduce((total, item) => total + item.price * item.quantity, 0),
       ),
-    );
-  }
-
-  getFinal(): Observable<number> {
-    return combineLatest([this.getTotal(), this.getDiscount()]).pipe(
-      map(([price, discount]) => price - discount),
-    );
-  }
-
-  getDiscount(): Observable<number> {
-    return combineLatest([this.getTotal(), this.discountPercent$]).pipe(
-      map(([price, discount]) => price * (discount / 100)),
     );
   }
 
@@ -143,5 +100,10 @@ export class CartService {
     return this.cart$.pipe(
       map((items) => items.some((item) => item.id === productId)),
     );
+  }
+
+  checkout(): Observable<{ order: orderResponse }> {
+    const items: CartItem[] = this.cartItems.value;
+    return this.orderService.createOrder(items);
   }
 }

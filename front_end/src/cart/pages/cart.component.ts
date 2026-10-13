@@ -1,4 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 import { Observable } from "rxjs";
 import { CartService, CartItem } from "../services/cart.service";
 import { UserService } from "../../user/services/user.service";
@@ -44,7 +45,11 @@ import { UserService } from "../../user/services/user.service";
                     <i class="fa-solid fa-plus"></i>
                   </div>
                 </div>
-                <div color="warn" (click)="removeItem(item.id)">
+                <div
+                  color="warn"
+                  class="trash-btn"
+                  (click)="removeItem(item.id)"
+                >
                   <i class="fa-solid fa-trash"></i>
                 </div>
               </div>
@@ -56,11 +61,13 @@ import { UserService } from "../../user/services/user.service";
                   Clear Cart
                 </button>
                 @if (isAuthenticated()) {
-                  <a routerLink="/checkout"
-                    ><button mat-raised-button color="primary">
-                      Checkout
-                    </button></a
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    (click)="checkout()"
                   >
+                    Checkout
+                  </button>
                 }
               </div>
             </div>
@@ -167,6 +174,7 @@ export class CartComponent {
   constructor(
     private cartService: CartService,
     private userService: UserService,
+    private router: Router,
   ) {
     this.cart$ = this.cartService.cart$;
     this.total$ = this.cartService.getTotal();
@@ -174,12 +182,6 @@ export class CartComponent {
 
   isAuthenticated() {
     return this.userService.isAuthenticated();
-  }
-
-  removeItem(productId: number): void {
-    const confirm = this.confirmRemove();
-    if (!confirm) return;
-    this.cartService.removeItem(productId);
   }
 
   updateQuantity(productId: number, quantity: number): void {
@@ -190,13 +192,32 @@ export class CartComponent {
     this.cartService.updateQuantity(productId, quantity);
   }
 
+  removeItem(productId: number): void {
+    const confirm = this.confirmRemove();
+    if (!confirm) return;
+    this.cartService.removeItem(productId);
+  }
+
   confirmRemove() {
-    return confirm("Do you wanna delete this prduct");
+    return confirm("Do you want to delete this product?");
   }
 
   clearCart(): void {
     const confirm = this.confirmRemove();
     if (!confirm) return;
     this.cartService.clearCart();
+  }
+  checkout() {
+    this.cartService.checkout().subscribe({
+      next: (data) => {
+        this.cartService.clearCart();
+        this.router.navigateByUrl(`/checkout?orderId=${data.order.id}`, {
+          browserUrl: "/checkout",
+        });
+      },
+      error: (error) => {
+        console.error({ checkout: error });
+      },
+    });
   }
 }

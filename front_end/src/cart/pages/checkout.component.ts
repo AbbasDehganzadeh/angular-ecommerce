@@ -1,95 +1,106 @@
 import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { Router } from "@angular/router";
-import { Observable } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import { map, Observable } from "rxjs";
 import { MatButtonModule } from "@angular/material/button";
-import { CartService, CartItem } from "../services/cart.service";
-import { UserService } from "../../user/services/user.service";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatSelectModule } from "@angular/material/select";
+import { OrderItemsTableComponent } from "../components/order-items-table.component";
+import {
+  orderResponse,
+  OrderService,
+  PaymentMethodType,
+} from "../services/order.service";
 
 @Component({
   selector: "app-checkout",
   template: `
     <div class="container">
-      <div class="ckeckout-container">
-        <h1>Checkout Info</h1>
-        <div class="cart-summary">
-          @if (discount$ | async) {
-            <p class="discount">Discount: {{ discount$ | async | currency }}</p>
-            <p class="final">Final: {{ final$ | async | currency }}</p>
-          }
-          <p class="total">Total: {{ total$ | async | currency }}</p>
-          <div class="cart-actions">
+      @if (order$ | async; as order) {
+        @if (order.items.length === 0) {
+          <div class="empty-cart">
+            <p>Oops, something went wrong;</p>
             <button mat-flat-button color="secondary" (click)="back()">
               Go Back
             </button>
-            <button
-              mat-flat-button
-              mat-stroked-button
-              color="primary"
-              (click)="checkout()"
-            >
-              Done!
-            </button>
           </div>
-        </div>
-      </div>
-      <div class="cart-container">
-        <h1>Items</h1>
-        @if (cart$ | async; as cartItems) {
-          @if (cartItems.length === 0) {
-            <div class="empty-cart">
-              <p>Your cart is empty</p>
-              <button
-                mat-raised-button
-                color="primary"
-                routerLink="/shop/products"
-              >
-                Continue Shopping
-              </button>
-            </div>
-          } @else {
-            <div class="cart-items">
-              <table>
-                <thead>
-                  <tr>
-                    <th>quantity</th>
-                    <th>item</th>
-                    <th>price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (item of cartItems; track item.id) {
-                    <tr class="cart-item">
-                      <td>
-                        <span>{{ item.quantity }}</span>
-                      </td>
-                      <td>
-                        <h3>{{ item.title }}</h3>
-                      </td>
-                      <td>
-                        <p class="price">{{ item.price }}</p>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-              <!-- discount field -->
-              <div class="discount-field">
-                <label>Discount code</label>
-                <input
-                  matInput
-                  type="text"
-                  placeholder="Cooupn code ..."
-                  [(ngModel)]="codeDiscount"
-                  class="discount-input"
-                />
-                <button (click)="setDiscount()">Validate</button>
+        } @else {
+          <div class="ckeckout-container">
+            <h1>Checkout Info</h1>
+            <div class="cart-summary">
+              @if (order.discount) {
+                <p class="final">Subtotal: {{ order.subtotal | currency }}</p>
+                <p class="discount">
+                  Discount: {{ order.discount | currency }}
+                </p>
+              }
+              <p class="total">Total: {{ order.total | currency }}</p>
+              <div class="cart-actions">
+                <button mat-flat-button color="secondary" (click)="back()">
+                  Go Back
+                </button>
+                <button
+                  mat-flat-button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="pay()"
+                >
+                  Done!
+                </button>
               </div>
             </div>
-          }
+          </div>
+
+          <div class="cart-container">
+            <h1>Items</h1>
+            <div class="cart-items">
+              <app-order-items-table
+                [items]="order.items"
+              ></app-order-items-table>
+
+              <!-- coupon field -->
+              <div class="coupon-field">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Coupon code</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    placeholder="Enter coupon code..."
+                    [(ngModel)]="codeCoupon"
+                    class="coupon-input"
+                  />
+                </mat-form-field>
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="setDiscount()"
+                >
+                  Validate
+                </button>
+              </div>
+
+              <!-- payment method field -->
+              <div class="payment-method-field">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Payment method</mat-label>
+                  <mat-select
+                    [(ngModel)]="selectedPaymentMethod"
+                    (selectionChange)="changePaymentMethod()"
+                  >
+                    <mat-option value="credit">In-App Credit</mat-option>
+                    <mat-option value="card">Credit Card</mat-option>
+                    <mat-option value="cash">Cash on Delivery</mat-option>
+                  </mat-select>
+                  <mat-icon matSuffix>credit_card</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
         }
-      </div>
+      }
     </div>
   `,
   styles: [
@@ -193,14 +204,21 @@ import { UserService } from "../../user/services/user.service";
         }
       }
 
-      .discount-field {
+      .coupon-field {
         flex: 1;
         font-size: x-large;
         font-weight: 600;
         min-width: 200px;
       }
 
-      .discount-input {
+      .payment-method-field {
+        flex: 1;
+        font-size: x-large;
+        font-weight: 600;
+        min-width: 200px;
+      }
+
+      .coupon-input {
         width: 100%;
         padding: var(--spacing-sm) var(--spacing-md);
         border: 1px solid var(--color-gray-200);
@@ -210,43 +228,89 @@ import { UserService } from "../../user/services/user.service";
     `,
   ],
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatIconModule,
+    OrderItemsTableComponent,
+  ],
 })
 export class CheckoutComponent {
-  cart$: Observable<CartItem[]>;
-  total$: Observable<number>;
-  discount$: Observable<number>;
-  final$: Observable<number>;
-  codeDiscount: string;
+  order$: Observable<orderResponse>;
+  orderId!: string;
+  codeCoupon!: string;
+  selectedPaymentMethod!: PaymentMethodType;
+  amount!: number;
 
   constructor(
+    private orderService: OrderService,
     private router: Router,
-    private cartService: CartService,
-    private userService: UserService,
+    private route: ActivatedRoute,
   ) {
-    this.cart$ = this.cartService.cart$;
-    this.total$ = this.cartService.getTotal();
-    this.discount$ = this.cartService.getDiscount();
-    this.final$ = this.cartService.getFinal();
-    this.codeDiscount = "";
+    const { orderId } = route.snapshot.queryParams;
+    this.orderId = orderId;
+    this.order$ = this.getOrder();
+  }
+
+  getOrder() {
+    return this.orderService.getOrder(this.orderId).pipe(
+      map((data) => {
+        const order = data.order;
+        this.selectedPaymentMethod = order.paymentMethod as PaymentMethodType;
+        this.amount = order.total;
+        return order;
+      }),
+    );
   }
 
   back() {
     this.router.navigateByUrl("/cart");
   }
 
-  isAuthenticated() {
-    return this.userService.isAuthenticated();
-  }
-
   setDiscount() {
-    const code = this.codeDiscount;
-    this.codeDiscount = "";
-    this.cartService.setDiscount(code);
+    const code = this.codeCoupon?.trim();
+    if (!code) return;
+    this.orderService.setDiscount(this.orderId, code).subscribe({
+      next: (res) => {
+        this.codeCoupon = "";
+        // Refresh order with updated totals
+        this.order$ = this.getOrder();
+      },
+      error: (err) => {
+        console.error({ coupon: err });
+      },
+    });
   }
 
-  checkout() {
-    this.cartService.clearCart();
-    this.router.navigateByUrl("/");
+  changePaymentMethod() {
+    if (!this.selectedPaymentMethod) return;
+    this.orderService
+      .setPaymentMethod(this.orderId, this.selectedPaymentMethod)
+      .subscribe({
+        next: (res) => {
+          this.order$ = this.getOrder();
+        },
+        error: (err) => {
+          console.error({ paymentMethod: err });
+        },
+      });
+  }
+
+  pay() {
+    this.orderService
+      .pay(this.orderId, this.selectedPaymentMethod, this.amount)
+      .subscribe({
+        next: (res) => {
+          // Navigate to order page to show confirmation
+          this.router.navigateByUrl(`/order?orderId=${this.orderId}`);
+        },
+        error: (err) => {
+          console.error({ checkout: err });
+        },
+      });
   }
 }

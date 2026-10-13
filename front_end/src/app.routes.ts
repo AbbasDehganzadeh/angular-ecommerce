@@ -1,10 +1,12 @@
 import { Routes } from "@angular/router";
 import { MainComponent } from "./main/main.component";
-import { isAuthenticated } from "./user/guards/user.guard";
 import { ContactUsComponent } from "./main/pages/comtact-us.component";
 import { AboutComponent } from "./main/pages/about.component";
 import { FaqComponent } from "./main/pages/faq.component";
 import { CheckoutComponent } from "./cart/pages/checkout.component";
+import { OrderComponent } from "./cart/pages/order.component";
+import { isAuthenticated } from "./user/guards/user.guard";
+import { hasBeenCheckedout } from "./cart/guards/checkout.guard";
 
 export const routes: Routes = [
   {
@@ -31,7 +33,12 @@ export const routes: Routes = [
   {
     path: "checkout",
     component: CheckoutComponent,
-    canActivate: [isAuthenticated],
+    canActivate: [isAuthenticated, hasBeenCheckedout],
+  },
+  {
+    path: "order",
+    component: OrderComponent,
+    canActivate: [isAuthenticated, hasBeenCheckedout],
   },
   {
     path: "cart",

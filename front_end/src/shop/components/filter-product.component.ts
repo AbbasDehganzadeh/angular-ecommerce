@@ -83,6 +83,7 @@ import { CategoryService } from "../services/category.service";
             <span>{{ MIN | currency }}</span>
             <span>{{ MAX | currency }}</span>
           </div>
+          <mat-slider
             discrete
             [min]="valueStart"
             [max]="valueEnd"

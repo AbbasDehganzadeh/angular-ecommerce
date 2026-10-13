@@ -2,8 +2,19 @@ import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
+import { RouterModule } from "@angular/router";
+import { MatTableModule } from "@angular/material/table";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatCardModule } from "@angular/material/card";
+import { MatChipsModule } from "@angular/material/chips";
+import { CurrencyPipe } from "@angular/common";
 import { UserService } from "../../user/services/user.service";
 import { User } from "../../models/user.model";
+import {
+  OrderService,
+  ordersResponse,
+} from "../../cart/services/order.service";
 
 @Component({
   selector: "app-profile-view",
@@ -31,6 +42,82 @@ import { User } from "../../models/user.model";
         } @else {
           <p class="no-user">No user data available</p>
         }
+
+        <!-- Orders section -->
+        <section class="orders-section">
+          <h2>My Orders</h2>
+          @if (orders$ | async; as orders) {
+            @if (orders.length === 0) {
+              <p class="no-orders">No orders yet</p>
+            } @else {
+              <table
+                mat-table
+                [dataSource]="orders"
+                class="mat-elevation-z1 orders-table"
+              >
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef>Order #</th>
+                  <td mat-cell *matCellDef="let order">
+                    <a
+                      [routerLink]="['/cart/order']"
+                      [queryParams]="{ orderId: order.id }"
+                      class="order-link"
+                    >
+                      {{ order.tag }}
+                    </a>
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef>Date</th>
+                  <td mat-cell *matCellDef="let order">
+                    {{ order.createdAt | date: "shortDate" }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let order">
+                    <mat-chip
+                      [color]="getStatusColor(order.status)"
+                      class="status-chip"
+                    >
+                      {{ order.status | titlecase }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="total">
+                  <th mat-header-cell *matHeaderCellDef>Total</th>
+                  <td mat-cell *matCellDef="let order">
+                    {{ order.total | currency }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="paymentMethod">
+                  <th mat-header-cell *matHeaderCellDef>Payment</th>
+                  <td mat-cell *matCellDef="let order">
+                    {{ order.paymentMethod | titlecase }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let order">
+                    <a
+                      [routerLink]="['/cart/order']"
+                      [queryParams]="{ orderId: order.id }"
+                      mat-stroked-button
+                      color="primary"
+                    >
+                      <mat-icon>visibility</mat-icon> View
+                    </a>
+                  </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: displayedColumns"
+                ></tr>
+              </table>
+            }
+          }
+        </section>
       </main>
     </div>
   `,
@@ -47,7 +134,7 @@ import { User } from "../../models/user.model";
         flex-direction: column;
         align-items: center;
         padding: 48px 24px;
-        max-width: 600px;
+        max-width: 900px;
         margin: 0 auto;
         width: 100%;
         box-sizing: border-box;
@@ -56,6 +143,7 @@ import { User } from "../../models/user.model";
       .profile-header {
         margin-bottom: 32px;
         text-align: center;
+        width: 100%;
       }
 
       .profile-header h1 {
@@ -91,6 +179,7 @@ import { User } from "../../models/user.model";
 
       .user-info {
         text-align: center;
+        margin-bottom: 32px;
       }
 
       .username {
@@ -120,6 +209,44 @@ import { User } from "../../models/user.model";
         font-size: 0.9375rem;
       }
 
+      .orders-section {
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e5e5;
+      }
+
+      .orders-section h2 {
+        margin: 0 0 20px 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+
+      .no-orders {
+        text-align: center;
+        color: #999999;
+        padding: 24px;
+      }
+
+      .orders-table {
+        width: 100%;
+      }
+
+      .order-link {
+        color: #1976d2;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .order-link:hover {
+        text-decoration: underline;
+      }
+
+      .status-chip {
+        font-size: 0.75rem;
+        height: 24px;
+      }
+
       @media (max-width: 480px) {
         .profile-container {
           padding: 32px 16px;
@@ -139,12 +266,48 @@ import { User } from "../../models/user.model";
       }
     `,
   ],
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatChipsModule,
+    CurrencyPipe,
+  ],
   standalone: true,
 })
 export class ProfileComponent {
   me$: Observable<User>;
-  constructor(private userService: UserService) {
+  orders$: Observable<ordersResponse>;
+  displayedColumns = [
+    "id",
+    "date",
+    "status",
+    "total",
+    "paymentMethod",
+    "actions",
+  ];
+
+  constructor(
+    private userService: UserService,
+    private orderService: OrderService,
+  ) {
     this.me$ = this.userService.getUserDetail().pipe(map((data) => data.user));
+    this.orders$ = this.orderService
+      .getOrders()
+      .pipe(map((data) => data.orders));
+  }
+
+  getStatusColor(status: string): string {
+    switch (status) {
+      case "paid":
+        return "primary";
+      case "failed":
+        return "warn";
+      default:
+        return "accent";
+    }
   }
 }

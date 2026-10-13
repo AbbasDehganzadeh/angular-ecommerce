@@ -1,6 +1,10 @@
 {
-  "name": "angular-ecommerce",
-  "private": true,
+  "name": "angular-ecommerce-front-end",
+  "version": "0.3.0",
+  "private": false,
+  "engines": {
+    "node": ">=22.10.0"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
